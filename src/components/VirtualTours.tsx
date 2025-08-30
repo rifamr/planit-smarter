@@ -19,7 +19,7 @@ const VirtualTours = () => {
             <Dialog key={c.title} open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
                 <div className="relative rounded-2xl overflow-hidden cursor-pointer hover-lift hover-glow">
-                  <img src={c.img} alt={c.title} loading="lazy" className="w-full h-56 object-cover" />
+                  <img src={c.img} alt={c.title} className="w-full h-56 object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                   <div className="absolute bottom-3 left-4 text-white font-semibold">{c.title}</div>
                 </div>
