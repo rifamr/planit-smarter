@@ -89,7 +89,7 @@ const Hero = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Video Background */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 pointer-events-none">
         <video
           autoPlay
           muted={isMuted}
@@ -139,7 +139,7 @@ const Hero = () => {
 
 
       {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden z-10">
+      <div className="absolute inset-0 overflow-hidden z-10 pointer-events-none">
         <motion.div 
           className="absolute top-20 left-10 text-white/20"
           animate={{ 
@@ -199,7 +199,7 @@ const Hero = () => {
       </div>
 
       {/* Main Content */}
-      <div className="relative z-20 max-w-7xl mx-auto px-6 text-center">
+      <div className="relative z-20 max-w-7xl mx-auto px-6 text-center pt-28 md:pt-36">
         <motion.div
           variants={containerVariants}
           initial="hidden"
