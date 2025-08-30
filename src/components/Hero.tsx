@@ -137,18 +137,6 @@ const Hero = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20"></div>
       </div>
 
-      {/* Video Controls */}
-      <button
-        onClick={() => setIsMuted(!isMuted)}
-        className="absolute top-6 right-20 z-30 w-12 h-12 bg-white/20 backdrop-blur-md border border-white/30 rounded-full flex items-center justify-center hover:bg-white/30 transition-all duration-300"
-        aria-label={isMuted ? 'Unmute video' : 'Mute video'}
-      >
-        {isMuted ? (
-          <VolumeX className="w-5 h-5 text-white" />
-        ) : (
-          <Volume2 className="w-5 h-5 text-white" />
-        )}
-      </button>
 
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden z-10">
