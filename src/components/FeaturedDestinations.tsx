@@ -22,6 +22,32 @@ interface Destination {
 const FeaturedDestinations = () => {
   const [activeFilter, setActiveFilter] = useState("All");
   const [favorites, setFavorites] = useState<string[]>([]);
+  const [destinations, setDestinations] = useState<Destination[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const [ref, inView] = useInView({
+    threshold: 0.1,
+    triggerOnce: true
+  });
+
+  // Load destinations from API
+  useEffect(() => {
+    const loadDestinations = async () => {
+      try {
+        setIsLoading(true);
+        const data = await getFeaturedDestinations();
+        setDestinations(data);
+      } catch (error) {
+        console.error('Failed to load destinations:', error);
+        // Fallback to original mock data if API fails
+        setDestinations(mockDestinations);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadDestinations();
+  }, []);
 
   const categories = [
     { id: "All", label: "All Destinations", icon: MapPin },
