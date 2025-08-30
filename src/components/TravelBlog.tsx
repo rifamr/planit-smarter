@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Calendar, Clock, User, ArrowRight, Filter, Search, BookOpen, Compass, Heart, Utensils, Camera } from "lucide-react";
 
 const TravelBlog = () => {
+  const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
   const [cmsPosts, setCmsPosts] = useState<any[]>([]);
@@ -195,10 +197,14 @@ const TravelBlog = () => {
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {featuredPosts.slice(0, 2).map((post, index) => (
-                <article 
+                <article
                   key={post.id}
                   className="feature-card-premium group cursor-pointer animate-slide-up"
                   style={{ animationDelay: `${index * 0.2}s` }}
+                  onClick={() => navigate(`/blog/${post.id}`)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === 'Enter' && navigate(`/blog/${post.id}`)}
                 >
                   <div className="relative overflow-hidden rounded-xl mb-6">
                     <img
@@ -240,10 +246,10 @@ const TravelBlog = () => {
                         </div>
                       </div>
                       
-                      <button className="text-primary font-medium hover:text-accent transition-colors flex items-center gap-1">
-                        Read more
-                        <ArrowRight className="w-4 h-4" />
-                      </button>
+                      <button className="text-primary font-medium hover:text-accent transition-colors flex items-center gap-1" onClick={() => navigate(`/blog/${post.id}`)}>
+                      Read more
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
                     </div>
                     
                     <div className="flex flex-wrap gap-2">
@@ -276,10 +282,14 @@ const TravelBlog = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredPosts.map((post, index) => (
-              <article 
+              <article
                 key={post.id}
                 className="feature-card group cursor-pointer animate-zoom-in"
                 style={{ animationDelay: `${index * 0.1}s` }}
+                onClick={() => navigate(`/blog/${post.id}`)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && navigate(`/blog/${post.id}`)}
               >
                 <div className="relative overflow-hidden rounded-xl mb-4">
                   <img
@@ -321,7 +331,7 @@ const TravelBlog = () => {
                     <span className="text-sm text-muted-foreground">
                       {post.author}
                     </span>
-                    <button className="text-primary font-medium hover:text-accent transition-colors text-sm flex items-center gap-1">
+                    <button className="text-primary font-medium hover:text-accent transition-colors text-sm flex items-center gap-1" onClick={() => navigate(`/blog/${post.id}`)}>
                       Read
                       <ArrowRight className="w-3 h-3" />
                     </button>
