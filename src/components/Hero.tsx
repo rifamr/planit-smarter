@@ -5,8 +5,8 @@ import { ArrowRight, Sparkles, Leaf, Search, MapPin, Calendar, DollarSign, Users
 const Hero = () => {
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
+  const [heroDestination, setHeroDestination] = useState("");
   const [searchForm, setSearchForm] = useState({
-    destination: "",
     checkin: "",
     checkout: "",
     travelers: 2,
@@ -28,7 +28,23 @@ const Hero = () => {
   };
 
   const handlePlanTrip = () => {
-    scrollToSection('itinerary-generator');
+    const today = new Date();
+    const toISO = (d: Date) => d.toISOString().split('T')[0];
+    const checkin = searchForm.checkin || toISO(today);
+    const out = new Date(checkin);
+    out.setDate(out.getDate() + 3);
+    const checkout = searchForm.checkout || toISO(out);
+
+    const detail = {
+      destination: heroDestination,
+      checkin,
+      checkout,
+      travelers: Number(searchForm.travelers) || 2,
+      budget: searchForm.budget || 'medium',
+      sustainability: !!searchForm.sustainability
+    };
+
+    window.dispatchEvent(new CustomEvent('ai-plan-trip', { detail }));
   };
 
   const handleExploreEco = () => {
@@ -249,8 +265,8 @@ const Hero = () => {
                         type="text"
                         list="destinations"
                         placeholder="Search destinations..."
-                        value={searchForm.destination}
-                        onChange={(e) => setSearchForm({...searchForm, destination: e.target.value})}
+                        value={heroDestination}
+                        onChange={(e) => setHeroDestination(e.target.value)}
                         className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-gray-900"
                         required
                       />
