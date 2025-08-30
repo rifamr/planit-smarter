@@ -5,6 +5,7 @@ import HowItWorks from "@/components/HowItWorks";
 import FeaturedDestinations from "@/components/FeaturedDestinations";
 import Features from "@/components/Features";
 import SustainabilityMode from "@/components/SustainabilityMode";
+import TripCompanions from "@/components/TripCompanions";
 import LiveDemo from "@/components/LiveDemo";
 import LanguageAssistance from "@/components/LanguageAssistance";
 import Testimonials from "@/components/Testimonials";
