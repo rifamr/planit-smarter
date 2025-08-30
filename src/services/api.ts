@@ -149,11 +149,11 @@ const MOCK_DESTINATIONS = [
 // API Configuration
 const API_CONFIG = {
   // Replace with your actual API keys
-  OPENAI_API_KEY: process.env.VITE_OPENAI_API_KEY || 'demo-key',
-  GOOGLE_TRANSLATE_KEY: process.env.VITE_GOOGLE_TRANSLATE_KEY || 'demo-key',
-  MAPBOX_API_KEY: process.env.VITE_MAPBOX_API_KEY || 'demo-key',
-  WEATHER_API_KEY: process.env.VITE_WEATHER_API_KEY || 'demo-key',
-  EXCHANGE_RATE_KEY: process.env.VITE_EXCHANGE_RATE_KEY || 'demo-key',
+  OPENAI_API_KEY: (import.meta as any).env?.VITE_OPENAI_API_KEY || 'demo-key',
+  GOOGLE_TRANSLATE_KEY: (import.meta as any).env?.VITE_GOOGLE_TRANSLATE_KEY || 'demo-key',
+  MAPBOX_API_KEY: (import.meta as any).env?.VITE_MAPBOX_API_KEY || 'demo-key',
+  WEATHER_API_KEY: (import.meta as any).env?.VITE_WEATHER_API_KEY || 'demo-key',
+  EXCHANGE_RATE_KEY: (import.meta as any).env?.VITE_EXCHANGE_RATE_KEY || 'demo-key',
 };
 
 // Utility Functions
