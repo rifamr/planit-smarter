@@ -637,6 +637,15 @@ const LiveDemo = () => {
                         >
                           <Download className="w-5 h-5 text-primary" />
                         </motion.button>
+                        {translating && (
+                          <div className="ml-3 flex items-center gap-2 text-xs text-muted-foreground">
+                            <div className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                            Translating...
+                          </div>
+                        )}
+                        {translateError && (
+                          <div className="ml-3 text-xs text-destructive">Translation temporarily unavailable.</div>
+                        )}
                       </div>
                     </div>
 
