@@ -126,6 +126,14 @@ const LanguageAssistance = () => {
     ]
   };
 
+  const quickPrompts = [
+    { q: "How do I say 'hello' in Japanese?", a: "In Japanese: こんにちは (Konnichiwa)." },
+    { q: "How to order vegetarian food in French?", a: "Say: \"Je voudrais un plat végétarien, s'il vous plaît.\"" },
+    { q: "Common tipping etiquette in Japan?", a: "Tipping isn't customary in Japan and can be considered rude in many cases." },
+    { q: "How to ask for the bill in Spanish?", a: "Ask: \"La cuenta, por favor.\"" },
+    { q: "Polite greeting in Italian?", a: "Use \"Buongiorno\" during the day and \"Buonasera\" in the evening." }
+  ];
+
   const features = [
     {
       icon: Volume2,
@@ -420,6 +428,23 @@ const LanguageAssistance = () => {
 
                   {feature.title === 'Chat Assistant' && (
                     <div className="space-y-3">
+                      <div>
+                        <div className="text-xs text-muted-foreground mb-2">Quick questions</div>
+                        <div className="flex flex-wrap gap-2">
+                          {quickPrompts.map((p, i) => (
+                            <button
+                              key={i}
+                              onClick={() => {
+                                setMessages(prev => [...prev, { role: 'user', text: p.q }]);
+                                setTimeout(() => setMessages(prev => [...prev, { role: 'assistant', text: p.a }]), 200);
+                              }}
+                              className="px-3 py-1 rounded-full border border-border text-xs hover:bg-muted transition-colors"
+                            >
+                              {p.q}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                       <div className="h-48 overflow-auto border border-border rounded p-3 bg-muted/30">
                         {messages.length === 0 && <div className="text-muted-foreground text-sm">Ask me anything about language, local phrases, or travel etiquette.</div>}
                         {messages.map((m,i)=> (
