@@ -34,7 +34,7 @@ const LazyImage = ({
   const imgRef = useRef<HTMLImageElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Intersection Observer for lazy loading
+  // Intersection Observer for lazy loading with early prefetch
   useEffect(() => {
     if (priority) {
       setIsInView(true);
@@ -49,7 +49,7 @@ const LazyImage = ({
         }
       },
       {
-        rootMargin: '50px',
+        rootMargin: '300px',
         threshold: 0.1
       }
     );
@@ -71,25 +71,40 @@ const LazyImage = ({
     onError?.();
   };
 
-  // Convert image to WebP if browser supports it
+  // Convert image to WebP if browser supports it and add sensible defaults
   const getOptimizedSrc = (originalSrc: string) => {
-    // Check if browser supports WebP
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     const webpSupported = ctx && canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0;
-    
-    // For Unsplash images, we can add format parameter
-    if (originalSrc.includes('unsplash.com') && webpSupported) {
+    if (originalSrc.includes('unsplash.com')) {
       const url = new URL(originalSrc);
-      url.searchParams.set('fm', 'webp');
-      url.searchParams.set('q', '80'); // Optimize quality
+      if (webpSupported) url.searchParams.set('fm', 'webp');
+      url.searchParams.set('auto', 'format');
+      url.searchParams.set('fit', 'crop');
+      url.searchParams.set('q', '80');
       return url.toString();
     }
-    
     return originalSrc;
   };
 
+  // Auto-generate srcset for Unsplash if none provided
+  const getAutoSrcSet = (originalSrc: string) => {
+    if (!originalSrc.includes('unsplash.com')) return undefined;
+    const widths = [320, 480, 640, 768, 1024, 1280, 1600];
+    const parts = widths.map((w) => {
+      const url = new URL(originalSrc);
+      url.searchParams.set('w', String(w));
+      url.searchParams.set('auto', 'format');
+      url.searchParams.set('fit', 'crop');
+      url.searchParams.set('q', '80');
+      return `${url.toString()} ${w}w`;
+    });
+    return parts.join(', ');
+  };
+
   const optimizedSrc = getOptimizedSrc(src);
+  const autoSrcSet = srcSet || getAutoSrcSet(src);
+  const computedSizes = sizes || '100vw';
 
   return (
     <div ref={containerRef} className={`relative overflow-hidden ${className}`}>
@@ -110,10 +125,12 @@ const LazyImage = ({
         <motion.img
           ref={imgRef}
           src={imageError ? fallback : optimizedSrc}
-          srcSet={srcSet}
-          sizes={sizes}
+          srcSet={autoSrcSet}
+          sizes={computedSizes}
           alt={alt}
           loading={loading}
+          decoding="async"
+          fetchPriority={priority ? 'high' : 'auto'}
           className={`w-full h-full object-cover transition-opacity duration-500 ${
             imageLoaded ? 'opacity-100' : 'opacity-0'
           }`}
