@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import LazyImage from "@/components/ui/LazyImage";
 import { Heart, Mountain, Sun, Building2 } from "lucide-react";
 
 const interests = [
@@ -63,7 +64,7 @@ const Recommended = () => {
               variants={cardVariants}
               className="relative overflow-hidden rounded-2xl group hover-lift hover-glow eco-highlight"
             >
-              <img src={d.img} alt={d.title} loading="lazy" className="w-full h-56 object-cover" />
+              <LazyImage src={d.img} alt={d.title} loading="lazy" className="w-full h-56 object-cover" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
               <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
                 <div>

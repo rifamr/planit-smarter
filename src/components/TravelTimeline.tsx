@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import LazyImage from "@/components/ui/LazyImage";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { MapPin } from "lucide-react";
@@ -73,7 +74,7 @@ const TravelTimeline = () => {
                   <MapPin className="h-4 w-4" />
                 </motion.div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center card-premium p-4">
-                  <img src={s.img} alt={s.city} loading="lazy" className="w-full h-32 md:h-40 object-cover rounded-xl" />
+                  <LazyImage src={s.img} alt={s.city} loading="lazy" className="w-full h-32 md:h-40 object-cover rounded-xl" sizes="(max-width: 768px) 100vw, 33vw" />
                   <div className="md:col-span-2">
                     <h3 className="text-xl font-semibold">{s.city}</h3>
                     <p className="text-muted-foreground">{s.desc}</p>
