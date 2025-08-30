@@ -376,12 +376,21 @@ const FeaturedDestinations = () => {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => {
-                        const params = new URLSearchParams(window.location.search);
-                        params.set('destination', `${destination.name}, ${destination.country}`);
-                        const url = `${window.location.pathname}?${params.toString()}#itinerary-generator`;
-                        window.history.replaceState(null, '', url);
-                        const el = document.getElementById('itinerary-generator');
-                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        const today = new Date();
+                        const toISO = (d: Date) => d.toISOString().split('T')[0];
+                        const checkin = toISO(today);
+                        const out = new Date(today);
+                        out.setDate(out.getDate() + 3);
+                        const checkout = toISO(out);
+                        const detail = {
+                          destination: `${destination.name}, ${destination.country}`,
+                          checkin,
+                          checkout,
+                          travelers: 2,
+                          budget: 'medium',
+                          sustainability: destination.sustainable || false
+                        };
+                        window.dispatchEvent(new CustomEvent('ai-plan-trip', { detail }));
                       }}
                       aria-label={`Plan trip to ${destination.name}`}
                     >
