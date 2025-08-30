@@ -5,6 +5,7 @@ import { MapPin, Star, Heart, Clock, Camera, Utensils, Mountain, Users, Filter, 
 import { getFeaturedDestinations } from "@/services/api";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import LazyImage from "@/components/ui/LazyImage";
 
 interface Destination {
   id: string;
@@ -293,11 +294,13 @@ const FeaturedDestinations = () => {
                   >
                 {/* Image Container */}
                 <div className="relative h-64 overflow-hidden">
-                  <img
+                  <LazyImage
                     src={destination.image}
                     alt={`${destination.name}, ${destination.country}`}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     loading="lazy"
+                    fallback="/placeholder.svg"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   />
                   
                   {/* Overlay Content */}
@@ -451,9 +454,9 @@ const FeaturedDestinations = () => {
                   </DialogHeader>
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <img src={destination.image} alt={`${destination.name} preview`} className="w-full h-40 object-cover rounded-xl" loading="lazy" />
-                      <img src={`${destination.image}&sat=0&auto=format&fit=crop`} alt={`${destination.name} view 2`} className="w-full h-40 object-cover rounded-xl" loading="lazy" />
-                      <img src={`${destination.image}&blur=0&auto=format&fit=crop`} alt={`${destination.name} view 3`} className="w-full h-40 object-cover rounded-xl" loading="lazy" />
+                      <LazyImage src={destination.image} alt={`${destination.name} preview`} className="w-full h-40 object-cover rounded-xl" loading="lazy" fallback="/placeholder.svg" sizes="(max-width: 640px) 100vw, 33vw" />
+                      <LazyImage src={`${destination.image}&sat=0&auto=format&fit=crop`} alt={`${destination.name} view 2`} className="w-full h-40 object-cover rounded-xl" loading="lazy" fallback="/placeholder.svg" sizes="(max-width: 640px) 100vw, 33vw" />
+                      <LazyImage src={`${destination.image}&blur=0&auto=format&fit=crop`} alt={`${destination.name} view 3`} className="w-full h-40 object-cover rounded-xl" loading="lazy" fallback="/placeholder.svg" sizes="(max-width: 640px) 100vw, 33vw" />
                     </div>
                     <p className="text-sm text-muted-foreground">{destination.description}</p>
                     <div className="space-y-2">
