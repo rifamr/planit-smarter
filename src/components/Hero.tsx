@@ -28,16 +28,7 @@ const Hero = () => {
   };
 
   const handlePlanTrip = () => {
-    if (searchForm.destination) {
-      scrollToSection('itinerary-generator');
-    } else {
-      // Highlight destination field
-      const destinationInput = document.querySelector('input[placeholder*="destinations"]') as HTMLInputElement;
-      if (destinationInput) {
-        destinationInput.focus();
-        destinationInput.style.animation = 'pulse 0.5s ease-in-out 2';
-      }
-    }
+    scrollToSection('itinerary-generator');
   };
 
   const handleExploreEco = () => {
@@ -372,6 +363,7 @@ const Hero = () => {
                   className="w-full btn-hero text-lg py-4 group"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
+                  aria-label="Plan my trip"
                 >
                   <Sparkles className="w-6 h-6 mr-3 group-hover:animate-spin" />
                   Plan My Dream Trip
