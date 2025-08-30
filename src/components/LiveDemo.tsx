@@ -29,6 +29,10 @@ const LiveDemo = () => {
   const [itineraryText, setItineraryText] = useState<string>("");
   const [translatedText, setTranslatedText] = useState<string>("");
   const [translateLang, setTranslateLang] = useState<string>("es");
+  const [uiLang, setUiLang] = useState<string>("en");
+  const [translating, setTranslating] = useState(false);
+  const [translateError, setTranslateError] = useState<string | null>(null);
+  const [tmap, setTmap] = useState<Record<string,string>>({});
   const [barsActive, setBarsActive] = useState(false);
 
   const [ref, inView] = useInView({
