@@ -22,6 +22,7 @@ async function geocode(place: string): Promise<{ lat: number; lng: number } | nu
 export default function LeafletMap({ city, coordinates, height = 280 }: LeafletMapProps) {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const leafletRef = useRef<L.Map | null>(null);
+  const markerRef = useRef<L.Marker | null>(null);
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -45,10 +46,15 @@ export default function LeafletMap({ city, coordinates, height = 280 }: LeafletM
         leafletRef.current.setView([center.lat, center.lng], 11);
       }
 
-      L.marker([center.lat, center.lng])
-        .addTo(leafletRef.current)
-        .bindPopup(city || 'Selected destination')
-        .openPopup();
+      if (markerRef.current) {
+        markerRef.current.remove();
+        markerRef.current = null;
+      }
+      const icon = L.divIcon({ className: '', html: '<div class="pulse-pin"></div>' });
+      markerRef.current = L.marker([center.lat, center.lng], { icon })
+        .addTo(leafletRef.current!)
+        .bindPopup(city || 'Selected destination');
+      markerRef.current.openPopup();
     };
 
     init();
@@ -67,6 +73,17 @@ export default function LeafletMap({ city, coordinates, height = 280 }: LeafletM
       link.rel = 'stylesheet';
       link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
       document.head.appendChild(link);
+    }
+    const pid = 'leaflet-pulse-pin-css';
+    if (!document.getElementById(pid)) {
+      const style = document.createElement('style');
+      style.id = pid;
+      style.innerHTML = `
+        .pulse-pin { position: relative; width: 14px; height: 14px; background: #22c55e; border-radius: 50%; box-shadow: 0 0 0 0 rgba(34,197,94,0.7); transform: translate(-50%, -50%); }
+        .pulse-pin::after { content: ''; position: absolute; inset: -6px; border-radius: 50%; animation: pulse-ring 1.8s ease-out infinite; border: 3px solid rgba(34,197,94,0.6); }
+        @keyframes pulse-ring { 0% { transform: scale(0.6); opacity: 1; } 100% { transform: scale(2.2); opacity: 0; } }
+      `;
+      document.head.appendChild(style);
     }
   }, []);
 
