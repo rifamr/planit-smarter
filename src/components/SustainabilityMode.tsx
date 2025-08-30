@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Leaf, TreePine, Recycle, Train, Home, MapPin, TrendingDown, Users, Award, ChevronRight } from "lucide-react";
+import { useInView } from "react-intersection-observer";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 
 const SustainabilityMode = () => {
   const [activeTab, setActiveTab] = useState("transport");
@@ -103,6 +105,33 @@ const SustainabilityMode = () => {
     }
   };
 
+  const [barsActive, setBarsActive] = useState(false);
+  const { ref: carbonRef, inView: carbonInView } = useInView({ threshold: 0.2, triggerOnce: true });
+  useEffect(()=>{ if (carbonInView) setBarsActive(true); }, [carbonInView]);
+
+  const AnimatedCounter: React.FC<{ end: number; duration?: number; prefix?: string; suffix?: string }> = ({ end, duration = 1200, prefix = '', suffix = '' }) => {
+    const [val, setVal] = useState(0);
+    useEffect(() => {
+      let raf: number;
+      const start = performance.now();
+      const step = (now: number) => {
+        const p = Math.min(1, (now - start) / duration);
+        setVal(Math.floor(p * end));
+        if (p < 1) raf = requestAnimationFrame(step);
+      };
+      raf = requestAnimationFrame(step);
+      return () => cancelAnimationFrame(raf);
+    }, [end, duration]);
+    return <span>{prefix}{val}{suffix}</span>;
+  };
+
+  const sectionIds: Record<string, string> = {
+    transport: 'eco-transport',
+    accommodation: 'green-stays',
+    activities: 'local-experiences',
+    impact: 'carbon-offset'
+  };
+
   return (
     <section className="section-padding bg-premium">
       <div className="max-w-7xl mx-auto container-padding">
@@ -128,10 +157,14 @@ const SustainabilityMode = () => {
           {sustainabilityFeatures.map((feature, index) => (
             <button
               key={feature.id}
-              onClick={() => setActiveTab(feature.id)}
+              onClick={() => {
+                setActiveTab(feature.id);
+                const el = document.getElementById(sectionIds[feature.id]);
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }}
               className={`feature-card-premium text-left transition-all duration-300 ${
-                activeTab === feature.id 
-                  ? 'ring-2 ring-secondary shadow-lg' 
+                activeTab === feature.id
+                  ? 'ring-2 ring-secondary shadow-lg'
                   : 'hover:shadow-md'
               }`}
               style={{ animationDelay: `${index * 0.1}s` }}
@@ -154,28 +187,30 @@ const SustainabilityMode = () => {
         {/* Carbon Impact Visualization */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-20">
           {/* Carbon Comparison Chart */}
-          <div className="feature-card-premium">
+          <div className="feature-card-premium" ref={carbonRef}>
             <h3 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-3">
               <TrendingDown className="w-6 h-6 text-green-600" />
               Carbon Footprint Comparison
             </h3>
-            
+
             <div className="space-y-6">
               {/* Traditional Travel */}
               <div>
                 <div className="flex justify-between items-center mb-3">
                   <span className="font-medium text-muted-foreground">Traditional Travel</span>
-                  <span className="font-bold text-red-600">{carbonComparison.traditional.total} tons CO₂</span>
+                  <span className="font-bold text-red-600">
+                    <AnimatedCounter end={carbonComparison.traditional.total} /> tons CO₂
+                  </span>
                 </div>
-                
+
                 <div className="space-y-2">
                   {Object.entries(carbonComparison.traditional).slice(0, -1).map(([key, value]) => (
                     <div key={key} className="flex items-center gap-3">
                       <span className="text-sm text-muted-foreground w-24 capitalize">{key}</span>
                       <div className="flex-1 bg-muted rounded-full h-2">
-                        <div 
+                        <div
                           className="bg-red-500 h-2 rounded-full transition-all duration-1000"
-                          style={{ width: `${(value / 3) * 100}%` }}
+                          style={{ width: barsActive ? `${(value / 3) * 100}%` : '0%' }}
                         ></div>
                       </div>
                       <span className="text-sm font-medium w-12">{value}t</span>
@@ -188,17 +223,19 @@ const SustainabilityMode = () => {
               <div>
                 <div className="flex justify-between items-center mb-3">
                   <span className="font-medium text-muted-foreground">Sustainable Travel</span>
-                  <span className="font-bold text-green-600">{carbonComparison.sustainable.total} tons CO₂</span>
+                  <span className="font-bold text-green-600">
+                    <AnimatedCounter end={carbonComparison.sustainable.total} /> tons CO₂
+                  </span>
                 </div>
-                
+
                 <div className="space-y-2">
                   {Object.entries(carbonComparison.sustainable).slice(0, -1).map(([key, value]) => (
                     <div key={key} className="flex items-center gap-3">
                       <span className="text-sm text-muted-foreground w-24 capitalize">{key}</span>
                       <div className="flex-1 bg-muted rounded-full h-2">
-                        <div 
+                        <div
                           className="bg-green-500 h-2 rounded-full transition-all duration-1000"
-                          style={{ width: `${(value / 3) * 100}%` }}
+                          style={{ width: barsActive ? `${(value / 3) * 100}%` : '0%' }}
                         ></div>
                       </div>
                       <span className="text-sm font-medium w-12">{value}t</span>
@@ -229,7 +266,7 @@ const SustainabilityMode = () => {
             </h3>
             
             {impactStats.map((stat, index) => (
-              <div 
+              <div
                 key={index}
                 className="feature-card bg-gradient-to-r from-card to-muted/30 animate-slide-in-right"
                 style={{ animationDelay: `${index * 0.2}s` }}
@@ -238,10 +275,10 @@ const SustainabilityMode = () => {
                   <div className={`w-16 h-16 rounded-full bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center ${stat.color}`}>
                     <stat.icon className="w-8 h-8" />
                   </div>
-                  
+
                   <div className="flex-1">
                     <div className="text-3xl font-bold text-foreground mb-1">
-                      {stat.value}
+                      <AnimatedCounter end={parseInt(stat.value)} suffix={stat.value.replace(/\d+/g, '')} />
                     </div>
                     <div className="font-semibold text-muted-foreground mb-1">
                       {stat.label}
@@ -273,26 +310,43 @@ const SustainabilityMode = () => {
           <h3 className="text-2xl font-bold text-foreground text-center mb-12">
             Sustainable Travel Tips
           </h3>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {ecoTips.map((tip, index) => (
-              <div 
-                key={index}
-                className="bg-card rounded-xl p-6 border border-border/50 hover:shadow-lg transition-all duration-300 animate-zoom-in"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <div className="w-12 h-12 bg-secondary/10 text-secondary rounded-xl flex items-center justify-center mb-4">
-                  <tip.icon className="w-6 h-6" />
-                </div>
-                
-                <h4 className="font-semibold text-foreground mb-3">
-                  {tip.tip}
-                </h4>
-                
-                <p className="text-sm text-muted-foreground">
-                  {tip.impact}
-                </p>
-              </div>
+              <Dialog key={index}>
+                <DialogTrigger asChild>
+                  <div
+                    className="bg-card rounded-xl p-6 border border-border/50 hover:shadow-lg transition-all duration-300 animate-zoom-in cursor-pointer"
+                    style={{ animationDelay: `${index * 0.1}s` }}
+                  >
+                    <div className="w-12 h-12 bg-secondary/10 text-secondary rounded-xl flex items-center justify-center mb-4">
+                      <tip.icon className="w-6 h-6" />
+                    </div>
+
+                    <h4 className="font-semibold text-foreground mb-3">
+                      {tip.tip}
+                    </h4>
+
+                    <p className="text-sm text-muted-foreground">
+                      {tip.impact}
+                    </p>
+                  </div>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>{tip.tip}</DialogTitle>
+                    <DialogDescription>{tip.impact}</DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-3 text-sm text-muted-foreground">
+                    <p>Practical guidance, examples, and resources to help you apply this tip on your next trip.</p>
+                    <ul className="list-disc pl-5">
+                      <li>How to plan</li>
+                      <li>Recommended tools</li>
+                      <li>Common pitfalls</li>
+                    </ul>
+                  </div>
+                </DialogContent>
+              </Dialog>
             ))}
           </div>
         </div>
@@ -321,6 +375,35 @@ const SustainabilityMode = () => {
                 {badge}
               </div>
             ))}
+          </div>
+        </div>
+        {/* Deep Sections */}
+        <div className="mt-20 space-y-16">
+          <div id="eco-transport" className="feature-card-premium">
+            <h4 className="text-xl font-bold mb-3 flex items-center gap-2"><Train className="w-5 h-5" /> Eco Transport</h4>
+            <p className="text-muted-foreground mb-4">Public transit maps, rail passes, and cycling routes to minimize emissions.</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <img src="https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?w=800&h=500&fit=crop" alt="Eco transport" className="rounded-xl w-full h-48 object-cover" />
+              <video src="https://videos.pexels.com/video-files/3356921/3356921-uhd_2560_1440_25fps.mp4" className="rounded-xl w-full h-48 object-cover" autoPlay muted loop playsInline></video>
+            </div>
+          </div>
+
+          <div id="green-stays" className="feature-card-premium">
+            <h4 className="text-xl font-bold mb-3 flex items-center gap-2"><Home className="w-5 h-5" /> Green Stays</h4>
+            <p className="text-muted-foreground mb-4">Certified eco-hotels and homestays with clear sustainability practices.</p>
+            <img src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=1200&h=600&fit=crop" alt="Green stays" className="rounded-xl w-full h-56 object-cover" />
+          </div>
+
+          <div id="local-experiences" className="feature-card-premium">
+            <h4 className="text-xl font-bold mb-3 flex items-center gap-2"><Users className="w-5 h-5" /> Local Experiences</h4>
+            <p className="text-muted-foreground mb-4">Community-based tourism and cultural immersion activities.</p>
+            <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&h=600&fit=crop" alt="Local experiences" className="rounded-xl w-full h-56 object-cover" />
+          </div>
+
+          <div id="carbon-offset" className="feature-card-premium">
+            <h4 className="text-xl font-bold mb-3 flex items-center gap-2"><TreePine className="w-5 h-5" /> Carbon Offset</h4>
+            <p className="text-muted-foreground mb-4">Understand and offset your footprint with verified projects.</p>
+            <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=1200&h=600&fit=crop" alt="Carbon offset" className="rounded-xl w-full h-56 object-cover" />
           </div>
         </div>
       </div>
