@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { useEffect, useMemo, useState } from "react";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { Globe, HelpCircle, Trophy } from "lucide-react";
 
@@ -21,6 +21,15 @@ const Gamification = () => {
   const [xp, setXp] = useState(60);
   const [choice, setChoice] = useState<number | null>(null);
   const [spun, setSpun] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const shown = sessionStorage.getItem('quizShown');
+    if (!shown) {
+      setOpen(true);
+      sessionStorage.setItem('quizShown', '1');
+    }
+  }, []);
 
   const top = useMemo(() => [
     { name: "Ava", xp: 92 },
@@ -35,6 +44,19 @@ const Gamification = () => {
 
   return (
     <section id="gamified" className="section-padding container-padding bg-section">
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogTitle>Daily Quiz</DialogTitle>
+          <DialogDescription>Answer and earn XP!</DialogDescription>
+          <div className="space-y-2 mt-2">
+            <p>{quiz.question}</p>
+            {quiz.options.map((o, i) => (
+              <button key={o} onClick={() => { setChoice(i); setXp((x)=>x + (i === quiz.answer ? 5 : 0)); setOpen(false); }} className={`w-full text-left px-4 py-2 rounded-lg border transition ${choice===i? 'border-primary bg-primary/10' : 'hover:bg-muted'}`}>{o}</button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-6">
         <div className="card-premium p-6">
           <div className="flex items-center gap-2 mb-3"><HelpCircle className="h-5 w-5"/><h3 className="text-lg font-semibold">Daily Quiz</h3></div>
