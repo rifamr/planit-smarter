@@ -418,8 +418,9 @@ const FeaturedDestinations = () => {
                           checkout,
                           travelers: 2,
                           budget: 'medium',
-                          sustainability: destination.sustainable || false
-                        };
+                          sustainability: destination.sustainable || false,
+                          interests: [...new Set([...(destination.category||[]), ...(destination.highlights||[])])].slice(0,5)
+                        } as any;
                         window.dispatchEvent(new CustomEvent('ai-plan-trip', { detail }));
                       }}
                       aria-label={`Plan trip to ${destination.name}`}
@@ -447,10 +448,14 @@ const FeaturedDestinations = () => {
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4">
-                    <img src={destination.image} alt={`${destination.name} preview`} className="w-full h-56 object-cover rounded-xl" loading="lazy" />
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <img src={destination.image} alt={`${destination.name} preview`} className="w-full h-40 object-cover rounded-xl" loading="lazy" />
+                      <img src={`${destination.image}&sat=0&auto=format&fit=crop`} alt={`${destination.name} view 2`} className="w-full h-40 object-cover rounded-xl" loading="lazy" />
+                      <img src={`${destination.image}&blur=0&auto=format&fit=crop`} alt={`${destination.name} view 3`} className="w-full h-40 object-cover rounded-xl" loading="lazy" />
+                    </div>
                     <p className="text-sm text-muted-foreground">{destination.description}</p>
                     <div className="flex flex-wrap gap-2">
-                      {destination.highlights.slice(0,5).map((h, i) => (
+                      {destination.highlights.slice(0,7).map((h, i) => (
                         <span key={i} className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">{h}</span>
                       ))}
                     </div>
