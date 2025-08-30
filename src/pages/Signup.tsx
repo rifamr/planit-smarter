@@ -41,10 +41,10 @@ const Signup = () => {
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <input className="w-full pl-10 pr-3 py-3 rounded-xl border border-border bg-background" placeholder="Password" type="password" value={password} onChange={(e)=>setPassword(e.target.value)} minLength={6} required />
           </div>
-          <motion.button type="submit" className="w-full btn-primary" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} disabled={loading}>
+          <button type="submit" className="w-full btn-primary transition-transform active:scale-95 hover:scale-[1.02]" disabled={loading}>
             {loading ? 'Creating...' : 'Create Account'}
             <ArrowRight className="inline ml-2 h-4 w-4" />
-          </motion.button>
+          </button>
         </form>
         <p className="text-xs text-muted-foreground mt-4 text-center">Already have an account? <button onClick={()=>navigate('/login')} className="text-primary hover:underline">Log in</button></p>
       </div>
