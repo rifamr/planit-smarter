@@ -2,41 +2,74 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* PlanIt Smarter Design System - Travel & Sustainability Theme */
 
 @layer base {
   :root {
+    /* Core Background & Text */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 222 84% 4.9%;
 
+    /* Card Components */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 222 84% 4.9%;
 
+    /* Popover Components */
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 222 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary Brand - Vibrant Blue */
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 217 91% 70%;
+    --primary-dark: 217 91% 45%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Secondary - Eco Green */
+    --secondary: 142 76% 36%;
+    --secondary-foreground: 0 0% 100%;
+    --secondary-light: 142 76% 46%;
+    --secondary-dark: 142 76% 26%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Accent - Soft Ocean Blue */
+    --accent: 199 89% 48%;
+    --accent-foreground: 0 0% 100%;
+    --accent-light: 199 89% 58%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Muted Tones */
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Utility Colors */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* Borders & Inputs */
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 217 91% 60%;
 
-    --radius: 0.5rem;
+    /* Design Tokens */
+    --radius: 0.75rem;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    
+    /* Travel Gradients */
+    --gradient-ocean: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(199 89% 48%) 100%);
+    --gradient-sunset: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(38 92% 50%) 50%, hsl(142 76% 36%) 100%);
+    --gradient-sky: linear-gradient(180deg, hsl(199 89% 58%) 0%, hsl(217 91% 70%) 100%);
+    --gradient-earth: linear-gradient(135deg, hsl(142 76% 46%) 0%, hsl(142 76% 26%) 100%);
+    
+    /* Animation Easings */
+    --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --transition-base: all 0.2s var(--ease-smooth);
+    --transition-slow: all 0.4s var(--ease-smooth);
 
     --sidebar-background: 0 0% 98%;
 
@@ -56,33 +89,45 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    /* Dark Theme */
+    --background: 222 84% 4.9%;
     --foreground: 210 40% 98%;
 
-    --card: 222.2 84% 4.9%;
+    --card: 222 84% 4.9%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 222.2 84% 4.9%;
+    --popover: 222 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 217 91% 65%;
+    --primary-foreground: 222 84% 4.9%;
+    --primary-light: 217 91% 75%;
+    --primary-dark: 217 91% 50%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 142 76% 41%;
+    --secondary-foreground: 222 84% 4.9%;
+    --secondary-light: 142 76% 51%;
+    --secondary-dark: 142 76% 31%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 199 89% 53%;
+    --accent-foreground: 222 84% 4.9%;
+    --accent-light: 199 89% 63%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --muted: 217 33% 18%;
+    --muted-foreground: 215 20% 65%;
 
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 63% 31%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --border: 217 33% 18%;
+    --input: 217 33% 18%;
+    --ring: 217 91% 65%;
+    
+    /* Dark Gradients */
+    --gradient-ocean: linear-gradient(135deg, hsl(217 91% 65%) 0%, hsl(199 89% 53%) 100%);
+    --gradient-sunset: linear-gradient(135deg, hsl(217 91% 65%) 0%, hsl(38 92% 55%) 50%, hsl(142 76% 41%) 100%);
+    --gradient-sky: linear-gradient(180deg, hsl(199 89% 63%) 0%, hsl(217 91% 75%) 100%);
+    --gradient-earth: linear-gradient(135deg, hsl(142 76% 51%) 0%, hsl(142 76% 31%) 100%);
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -100,6 +145,72 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-poppins;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
   }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  /* Hero Button Variants */
+  .btn-hero {
+    @apply bg-gradient-to-r from-primary to-accent text-white font-semibold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300;
+  }
+  
+  .btn-hero-secondary {
+    @apply bg-gradient-to-r from-secondary to-secondary-light text-white font-semibold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300;
+  }
+  
+  .btn-outline-hero {
+    @apply border-2 border-primary text-primary bg-transparent font-semibold px-8 py-4 rounded-xl hover:bg-primary hover:text-white transform hover:scale-105 transition-all duration-300;
+  }
+
+  /* Feature Card Styles */
+  .feature-card {
+    @apply bg-card rounded-2xl p-6 shadow-md hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300 border border-border/50;
+  }
+  
+  .feature-card-gradient {
+    @apply bg-gradient-to-br from-primary/5 to-accent/5 rounded-2xl p-6 shadow-md hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300 border border-primary/20;
+  }
+
+  /* Text Gradients */
+  .text-gradient-primary {
+    @apply bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
+  }
+  
+  .text-gradient-secondary {
+    @apply bg-gradient-to-r from-secondary to-secondary-light bg-clip-text text-transparent;
+  }
+
+  /* Animated Background */
+  .bg-hero {
+    @apply bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10;
+  }
+  
+  .bg-section {
+    @apply bg-gradient-to-r from-muted/30 to-accent/5;
+  }
+}
+
+@layer utilities {
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .animate-pulse-slow {
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  .animate-bounce-slow {
+    animation: bounce 2s infinite;
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
 }
