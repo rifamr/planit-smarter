@@ -159,6 +159,38 @@ const API_CONFIG = {
 // Utility Functions
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+// LibreTranslate (no key required)
+export const translateLibre = async (text: string, target: string): Promise<string> => {
+  try {
+    const res = await fetch('https://libretranslate.de/translate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ q: text, source: 'auto', target })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      return data.translatedText || text;
+    }
+  } catch (e) {
+    console.warn('LibreTranslate failed', e);
+  }
+  return text;
+};
+
+// Simple geocoder for city to coordinates using Nominatim
+export const geocodePlace = async (place: string): Promise<{ lat: number; lng: number } | null> => {
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(place)}`);
+    const json = await res.json();
+    if (Array.isArray(json) && json[0]) {
+      return { lat: parseFloat(json[0].lat), lng: parseFloat(json[0].lon) };
+    }
+  } catch (e) {
+    console.warn('Geocoding failed', e);
+  }
+  return null;
+};
+
 const calculateDuration = (checkin: string, checkout: string): number => {
   const start = new Date(checkin);
   const end = new Date(checkout);
