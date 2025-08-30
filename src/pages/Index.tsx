@@ -19,7 +19,6 @@ const Recommended = lazy(() => import("@/components/Recommended"));
 const TravelTimeline = lazy(() => import("@/components/TravelTimeline"));
 const BudgetVisualizer = lazy(() => import("@/components/BudgetVisualizer"));
 const Gamification = lazy(() => import("@/components/Gamification"));
-const VirtualTours = lazy(() => import("@/components/VirtualTours"));
 const MoodBoard = lazy(() => import("@/components/MoodBoard"));
 
 const Fallback = () => <div className="max-w-6xl mx-auto container-padding py-12"><div className="h-40 skeleton rounded-xl" /></div>;
@@ -41,9 +40,6 @@ const Index = () => {
       </Suspense>
       <Suspense fallback={<Fallback />}>
         <Gamification />
-      </Suspense>
-      <Suspense fallback={<Fallback />}>
-        <VirtualTours />
       </Suspense>
       <Suspense fallback={<Fallback />}>
         <MoodBoard />
