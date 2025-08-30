@@ -169,7 +169,7 @@ const Navigation = () => {
             </div>
 
             {/* CTA Button */}
-            <div className="hidden lg:flex items-center gap-4">
+            <div className="hidden lg:flex items-center gap-4 mr-24">
               <motion.button
                 className={`px-6 py-2 rounded-lg font-medium transition-all duration-300 ${
                   isScrolled 
