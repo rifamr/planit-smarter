@@ -159,6 +159,212 @@ const API_CONFIG = {
 // Utility Functions
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+// Local fallback dictionary-based translator for predefined languages
+const LOCAL_FALLBACK_TRANSLATE = (text: string, target: string): string => {
+  if (!text || !target || target === 'en') return text;
+
+  const simplify = (s: string) => s.normalize('NFC');
+  const t = simplify(text);
+
+  // Pattern-based translations for common itinerary phrases
+  const patterns: Record<string, Record<string, (m: RegExpMatchArray) => string>> = {
+    es: {
+      // Explore the best of {X} with curated experiences tailored to your interests.
+      '^Explore the best of (.+) with curated experiences tailored to your interests\.$':
+        (m) => `Explora lo mejor de ${m[1]} con experiencias seleccionadas a tus intereses.`,
+      '^Immersive local experience in (.+)$':
+        (m) => `Experiencia local inmersiva en ${m[1]}`,
+      '^Local (.+) Experience$':
+        (m) => `Experiencia local de ${m[1]}`,
+      '^Day (\\d+): Arrival & Exploration$':
+        (m) => `Día ${m[1]}: Llegada y Exploración`,
+      '^Day (\\d+): Cultural Immersion$':
+        (m) => `Día ${m[1]}: Inmersión Cultural`,
+      '^Day (\\d+): Departure Day$':
+        (m) => `Día ${m[1]}: Día de Salida`,
+      '^Day (\\d+): Adventure & Discovery$':
+        (m) => `Día ${m[1]}: Aventura y Descubrimiento`,
+    },
+    fr: {
+      '^Explore the best of (.+) with curated experiences tailored to your interests\.$':
+        (m) => `Découvrez le meilleur de ${m[1]} avec des expériences sélectionnées selon vos intérêts.`,
+      '^Immersive local experience in (.+)$':
+        (m) => `Expérience locale immersive à ${m[1]}`,
+      '^Local (.+) Experience$':
+        (m) => `Expérience locale de ${m[1]}`,
+      '^Day (\\d+): Arrival & Exploration$':
+        (m) => `Jour ${m[1]} : Arrivée et Exploration`,
+      '^Day (\\d+): Cultural Immersion$':
+        (m) => `Jour ${m[1]} : Immersion Culturelle`,
+      '^Day (\\d+): Departure Day$':
+        (m) => `Jour ${m[1]} : Jour du Départ`,
+      '^Day (\\d+): Adventure & Discovery$':
+        (m) => `Jour ${m[1]} : Aventure et Découverte`,
+    },
+    de: {
+      '^Explore the best of (.+) with curated experiences tailored to your interests\.$':
+        (m) => `Entdecken Sie das Beste von ${m[1]} mit kuratierten Erlebnissen, die auf Ihre Interessen zugeschnitten sind.`,
+      '^Immersive local experience in (.+)$':
+        (m) => `Eintauchendes lokales Erlebnis in ${m[1]}`,
+      '^Local (.+) Experience$':
+        (m) => `Lokales ${m[1]}-Erlebnis`,
+      '^Day (\\d+): Arrival & Exploration$':
+        (m) => `Tag ${m[1]}: Ankunft & Erkundung`,
+      '^Day (\\d+): Cultural Immersion$':
+        (m) => `Tag ${m[1]}: Kulturelles Eintauchen`,
+      '^Day (\\d+): Departure Day$':
+        (m) => `Tag ${m[1]}: Abreisetag`,
+      '^Day (\\d+): Adventure & Discovery$':
+        (m) => `Tag ${m[1]}: Abenteuer & Entdeckung`,
+    },
+    ja: {
+      '^Explore the best of (.+) with curated experiences tailored to your interests\.$':
+        (m) => `${m[1]}の魅力を、あなたの興味に合わせた体験で満喫しましょう。`,
+      '^Immersive local experience in (.+)$':
+        (m) => `${m[1]}での没入型ローカル体験`,
+      '^Local (.+) Experience$':
+        (m) => `ローカル${m[1]}体験`,
+      '^Day (\\d+): Arrival & Exploration$':
+        (m) => `${m[1]}日目：到着と観光`,
+      '^Day (\\d+): Cultural Immersion$':
+        (m) => `${m[1]}日目：文化体験`,
+      '^Day (\\d+): Departure Day$':
+        (m) => `${m[1]}日目：出発日`,
+      '^Day (\\d+): Adventure & Discovery$':
+        (m) => `${m[1]}日目：冒険と発見`,
+    },
+    hi: {
+      '^Explore the best of (.+) with curated experiences tailored to your interests\.$':
+        (m) => `${m[1]} के सर्वोत्तम स्थानों का अनुभव करें, आपकी रुचि के अनुसार चुने गए अनुभवों के साथ।`,
+      '^Immersive local experience in (.+)$':
+        (m) => `${m[1]} में गहन स्थानीय अनुभव`,
+      '^Local (.+) Experience$':
+        (m) => `स्थानीय ${m[1]} अनुभव`,
+      '^Day (\\d+): Arrival & Exploration$':
+        (m) => `दिन ${m[1]}: आगमन और खोज`,
+      '^Day (\\d+): Cultural Immersion$':
+        (m) => `दिन ${m[1]}: सांस्कृतिक अनुभव`,
+      '^Day (\\d+): Departure Day$':
+        (m) => `दिन ${m[1]}: प्रस्थान दिवस`,
+      '^Day (\\d+): Adventure & Discovery$':
+        (m) => `दिन ${m[1]}: रोमांच और खोज`,
+    },
+    it: {
+      '^Explore the best of (.+) with curated experiences tailored to your interests\.$':
+        (m) => `Scopri il meglio di ${m[1]} con esperienze curate su misura per i tuoi interessi.`,
+      '^Immersive local experience in (.+)$':
+        (m) => `Esperienza locale immersiva a ${m[1]}`,
+      '^Local (.+) Experience$':
+        (m) => `Esperienza locale di ${m[1]}`,
+      '^Day (\\d+): Arrival & Exploration$':
+        (m) => `Giorno ${m[1]}: Arrivo ed Esplorazione`,
+      '^Day (\\d+): Cultural Immersion$':
+        (m) => `Giorno ${m[1]}: Immersione Culturale`,
+      '^Day (\\d+): Departure Day$':
+        (m) => `Giorno ${m[1]}: Giorno della Partenza`,
+      '^Day (\\d+): Adventure & Discovery$':
+        (m) => `Giorno ${m[1]}: Avventura e Scoperta`,
+    },
+    pt: {
+      '^Explore the best of (.+) with curated experiences tailored to your interests\.$':
+        (m) => `Explore o melhor de ${m[1]} com experiências selecionadas de acordo com seus interesses.`,
+      '^Immersive local experience in (.+)$':
+        (m) => `Experiência local imersiva em ${m[1]}`,
+      '^Local (.+) Experience$':
+        (m) => `Experiência local de ${m[1]}`,
+      '^Day (\\d+): Arrival & Exploration$':
+        (m) => `Dia ${m[1]}: Chegada e Exploração`,
+      '^Day (\\d+): Cultural Immersion$':
+        (m) => `Dia ${m[1]}: Imersão Cultural`,
+      '^Day (\\d+): Departure Day$':
+        (m) => `Dia ${m[1]}: Dia da Partida`,
+      '^Day (\\d+): Adventure & Discovery$':
+        (m) => `Dia ${m[1]}: Aventura e Descoberta`,
+    },
+    zh: {
+      '^Explore the best of (.+) with curated experiences tailored to your interests\.$':
+        (m) => `通过符合您兴趣的精选体验，探索${m[1]}的精华。`,
+      '^Immersive local experience in (.+)$':
+        (m) => `${m[1]}的沉浸式本地体验`,
+      '^Local (.+) Experience$':
+        (m) => `本地${m[1]}体验`,
+      '^Day (\\d+): Arrival & Exploration$':
+        (m) => `第${m[1]}天：抵达与探索`,
+      '^Day (\\d+): Cultural Immersion$':
+        (m) => `第${m[1]}天：文化体验`,
+      '^Day (\\d+): Departure Day$':
+        (m) => `第${m[1]}天：离开日`,
+      '^Day (\\d+): Adventure & Discovery$':
+        (m) => `第${m[1]}天：冒险与发现`,
+    },
+  };
+
+  const lang = (target || '').toLowerCase();
+  const rules = patterns[lang as keyof typeof patterns];
+  if (rules) {
+    for (const [pattern, fn] of Object.entries(rules)) {
+      const re = new RegExp(pattern);
+      const match = t.match(re);
+      if (match) return fn(match);
+    }
+  }
+
+  // Fallback simple dictionary replacement for common words
+  const dicts: Record<string, Record<string, string>> = {
+    es: {
+      Day: 'Día', Arrival: 'Llegada', Exploration: 'Exploración', Cultural: 'Cultural', Immersion: 'Inmersión',
+      Departure: 'Salida', Adventure: 'Aventura', Discovery: 'Descubrimiento', Local: 'Local', Experience: 'Experiencia',
+      Explore: 'Explora', best: 'mejor', with: 'con', curated: 'seleccionadas', experiences: 'experiencias',
+      tailored: 'a medida', interests: 'intereses', Authentic: 'Auténtico', in: 'en',
+    },
+    fr: {
+      Day: 'Jour', Arrival: 'Arrivée', Exploration: 'Exploration', Cultural: 'Culturelle', Immersion: 'Immersion',
+      Departure: 'Départ', Adventure: 'Aventure', Discovery: 'Découverte', Local: 'Locale', Experience: 'Expérience',
+      Explore: 'Découvrez', best: 'meilleur', with: 'avec', curated: 'sélectionnées', experiences: 'expériences',
+      tailored: 'adaptées', interests: 'intérêts', Authentic: 'Authentique', in: 'à',
+    },
+    de: {
+      Day: 'Tag', Arrival: 'Ankunft', Exploration: 'Erkundung', Cultural: 'Kulturelle', Immersion: 'Eintauchen',
+      Departure: 'Abreise', Adventure: 'Abenteuer', Discovery: 'Entdeckung', Local: 'Lokales', Experience: 'Erlebnis',
+      Explore: 'Entdecken', best: 'Beste', with: 'mit', curated: 'kuratierte', experiences: 'Erlebnisse',
+      tailored: 'zugeschnitten', interests: 'Interessen', Authentic: 'Authentisch', in: 'in',
+    },
+    ja: {
+      Day: '日目', Arrival: '到着', Exploration: '観光', Cultural: '文化', Immersion: '体験',
+      Departure: '出発', Adventure: '冒険', Discovery: '発見', Local: 'ローカル', Experience: '体験',
+      Explore: '満喫', best: '魅力', with: 'で', curated: '厳選', experiences: '体験', tailored: '合わせた', interests: '興味', Authentic: '本格的', in: 'で',
+    },
+    hi: {
+      Day: 'दिन', Arrival: 'आगमन', Exploration: 'खोज', Cultural: 'सांस्कृतिक', Immersion: 'अनुभव',
+      Departure: 'प्रस्थान', Adventure: 'रोमांच', Discovery: 'खोज', Local: 'स्थानीय', Experience: 'अनुभव',
+      Explore: 'अनुभव करें', best: 'सर्वोत्तम', with: 'साथ', curated: 'चुने हुए', experiences: 'अनुभव', tailored: 'अनुकूलित', interests: 'रुचि', Authentic: 'प्रामाणिक', in: 'में',
+    },
+    it: {
+      Day: 'Giorno', Arrival: 'Arrivo', Exploration: 'Esplorazione', Cultural: 'Culturale', Immersion: 'Immersione',
+      Departure: 'Partenza', Adventure: 'Avventura', Discovery: 'Scoperta', Local: 'Locale', Experience: 'Esperienza',
+      Explore: 'Scopri', best: 'meglio', with: 'con', curated: 'selezionate', experiences: 'esperienze', tailored: 'su misura', interests: 'interessi', Authentic: 'Autentico', in: 'a',
+    },
+    pt: {
+      Day: 'Dia', Arrival: 'Chegada', Exploration: 'Exploração', Cultural: 'Cultural', Immersion: 'Imersão',
+      Departure: 'Partida', Adventure: 'Aventura', Discovery: 'Descoberta', Local: 'Local', Experience: 'Experiência',
+      Explore: 'Explore', best: 'melhor', with: 'com', curated: 'selecionadas', experiences: 'experiências', tailored: 'personalizadas', interests: 'interesses', Authentic: 'Autêntico', in: 'em',
+    },
+    zh: {
+      Day: '第', Arrival: '抵达', Exploration: '探索', Cultural: '文化', Immersion: '沉浸',
+      Departure: '离开', Adventure: '冒险', Discovery: '发现', Local: '本地', Experience: '体验',
+      Explore: '探索', best: '精华', with: '通过', curated: '精选', experiences: '体验', tailored: '符合', interests: '兴趣', Authentic: '正宗', in: '在',
+    },
+  };
+  const d = dicts[lang as keyof typeof dicts];
+  if (!d) return text;
+  let out = t;
+  for (const [en, tr] of Object.entries(d)) {
+    const re = new RegExp(`\\b${en}\\b`, 'g');
+    out = out.replace(re, tr);
+  }
+  return out;
+};
+
 // LibreTranslate (no key required)
 export const translateLibre = async (text: string, target: string): Promise<string> => {
   const payload = { q: text, source: 'auto', target, format: 'text' } as const;
@@ -178,7 +384,8 @@ export const translateLibre = async (text: string, target: string): Promise<stri
       console.warn('LibreTranslate failed', url, e);
     }
   }
-  return text;
+  // Fallback to predefined/local translation rules
+  return LOCAL_FALLBACK_TRANSLATE(text, target);
 };
 
 // Simple geocoder for city to coordinates using Nominatim
