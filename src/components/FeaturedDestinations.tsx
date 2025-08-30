@@ -24,7 +24,7 @@ const FeaturedDestinations = () => {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
+  
   const [ref, inView] = useInView({
     threshold: 0.1,
     triggerOnce: true
@@ -39,7 +39,7 @@ const FeaturedDestinations = () => {
         setDestinations(data);
       } catch (error) {
         console.error('Failed to load destinations:', error);
-        // Fallback to original mock data if API fails
+        // Fallback to mock data if API fails
         setDestinations(mockDestinations);
       } finally {
         setIsLoading(false);
@@ -193,7 +193,7 @@ const FeaturedDestinations = () => {
               Featured <span className="text-gradient-primary">Destinations</span>
             </h2>
             <p className="text-responsive-md text-muted-foreground max-w-3xl mx-auto">
-              Discover handpicked destinations that offer unforgettable experiences,
+              Discover handpicked destinations that offer unforgettable experiences, 
               from sustainable adventures to cultural immersions.
             </p>
           </motion.div>
@@ -227,163 +227,214 @@ const FeaturedDestinations = () => {
         </motion.div>
 
         {/* Destinations Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredDestinations.map((destination, index) => (
-            <div
-              key={destination.id}
-              className="destination-card animate-zoom-in"
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
-              {/* Image Container */}
-              <div className="relative h-64 overflow-hidden">
-                <img
-                  src={destination.image}
-                  alt={`${destination.name}, ${destination.country}`}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                  loading="lazy"
-                />
-                
-                {/* Overlay Content */}
-                <div className="absolute inset-0 z-20 p-6 flex flex-col justify-between">
-                  {/* Top Row */}
-                  <div className="flex justify-between items-start">
-                    <div className="flex gap-2">
-                      {destination.sustainable && (
-                        <span className="bg-secondary text-white text-xs px-2 py-1 rounded-full font-medium">
-                          🌱 Eco-Friendly
-                        </span>
-                      )}
-                      {destination.category.slice(0, 2).map((cat) => (
-                        <span 
-                          key={cat}
-                          className="bg-black/30 text-white text-xs px-2 py-1 rounded-full backdrop-blur-sm"
-                        >
-                          {cat}
-                        </span>
-                      ))}
-                    </div>
-                    
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleFavorite(destination.id);
-                      }}
-                      className="p-2 rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-colors"
-                    >
-                      <Heart 
-                        className={`w-5 h-5 ${
-                          favorites.includes(destination.id) 
-                            ? 'text-red-500 fill-current' 
-                            : 'text-white'
-                        }`}
-                      />
-                    </button>
-                  </div>
-
-                  {/* Bottom Content */}
-                  <div className="text-white">
-                    <div className="flex items-center gap-2 mb-2">
-                      <MapPin className="w-4 h-4" />
-                      <span className="text-sm opacity-90">{destination.country}</span>
-                    </div>
-                    
-                    <h3 className="text-2xl font-bold mb-2">{destination.name}</h3>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-1">
-                          <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                          <span className="font-medium">{destination.rating}</span>
-                        </div>
-                        <span className="text-sm opacity-75">({destination.reviews})</span>
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: i * 0.1, duration: 0.5 }}
+                className="feature-card h-96 flex items-center justify-center"
+              >
+                <div className="text-center">
+                  <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-4" />
+                  <p className="text-muted-foreground">Loading destinations...</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate={inView ? "visible" : "hidden"}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          >
+            {filteredDestinations.map((destination, index) => (
+              <motion.div
+                key={destination.id}
+                variants={itemVariants}
+                className="destination-card group"
+                whileHover={{ scale: 1.02, y: -8 }}
+                transition={{ duration: 0.3 }}
+              >
+                {/* Image Container */}
+                <div className="relative h-64 overflow-hidden">
+                  <img
+                    src={destination.image}
+                    alt={`${destination.name}, ${destination.country}`}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    loading="lazy"
+                  />
+                  
+                  {/* Overlay Content */}
+                  <div className="absolute inset-0 z-20 p-6 flex flex-col justify-between">
+                    {/* Top Row */}
+                    <div className="flex justify-between items-start">
+                      <div className="flex gap-2">
+                        {destination.sustainable && (
+                          <span className="bg-secondary text-white text-xs px-2 py-1 rounded-full font-medium">
+                            🌱 Eco-Friendly
+                          </span>
+                        )}
+                        {destination.category.slice(0, 2).map((cat) => (
+                          <span 
+                            key={cat}
+                            className="bg-black/30 text-white text-xs px-2 py-1 rounded-full backdrop-blur-sm"
+                          >
+                            {cat}
+                          </span>
+                        ))}
                       </div>
                       
-                      <div className="text-right">
-                        <div className="text-sm opacity-75">from</div>
-                        <div className="text-xl font-bold">${destination.price}</div>
+                      <motion.button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleFavorite(destination.id);
+                        }}
+                        className="p-2 rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-colors"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                      >
+                        <Heart 
+                          className={`w-5 h-5 ${
+                            favorites.includes(destination.id) 
+                              ? 'text-red-500 fill-current' 
+                              : 'text-white'
+                          }`}
+                        />
+                      </motion.button>
+                    </div>
+
+                    {/* Bottom Content */}
+                    <div className="text-white">
+                      <div className="flex items-center gap-2 mb-2">
+                        <MapPin className="w-4 h-4" />
+                        <span className="text-sm opacity-90">{destination.country}</span>
+                      </div>
+                      
+                      <h3 className="text-2xl font-bold mb-2">{destination.name}</h3>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1">
+                            <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                            <span className="font-medium">{destination.rating}</span>
+                          </div>
+                          <span className="text-sm opacity-75">({destination.reviews})</span>
+                        </div>
+                        
+                        <div className="text-right">
+                          <div className="text-sm opacity-75">from</div>
+                          <div className="text-xl font-bold">${destination.price}</div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Card Content */}
-              <div className="p-6 bg-card">
-                <p className="text-muted-foreground mb-4 leading-relaxed">
-                  {destination.description}
-                </p>
-                
-                <div className="flex items-center gap-4 mb-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Clock className="w-4 h-4" />
-                    {destination.duration}
+                {/* Card Content */}
+                <div className="p-6 bg-card">
+                  <p className="text-muted-foreground mb-4 leading-relaxed">
+                    {destination.description}
+                  </p>
+                  
+                  <div className="flex items-center gap-4 mb-4 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <Clock className="w-4 h-4" />
+                      {destination.duration}
+                    </div>
+                  </div>
+
+                  {/* Highlights */}
+                  <div className="mb-6">
+                    <h4 className="font-semibold text-foreground mb-2">Highlights</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {destination.highlights.slice(0, 3).map((highlight, idx) => (
+                        <span 
+                          key={idx}
+                          className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full"
+                        >
+                          {highlight}
+                        </span>
+                      ))}
+                      {destination.highlights.length > 3 && (
+                        <span className="text-xs text-muted-foreground">
+                          +{destination.highlights.length - 3} more
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-3">
+                    <motion.button 
+                      className="flex-1 btn-primary text-sm"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      Plan Trip
+                    </motion.button>
+                    <motion.button 
+                      className="px-4 py-2 border border-border rounded-lg hover:bg-muted transition-colors"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Camera className="w-4 h-4" />
+                    </motion.button>
                   </div>
                 </div>
-
-                {/* Highlights */}
-                <div className="mb-6">
-                  <h4 className="font-semibold text-foreground mb-2">Highlights</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {destination.highlights.slice(0, 3).map((highlight, idx) => (
-                      <span 
-                        key={idx}
-                        className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full"
-                      >
-                        {highlight}
-                      </span>
-                    ))}
-                    {destination.highlights.length > 3 && (
-                      <span className="text-xs text-muted-foreground">
-                        +{destination.highlights.length - 3} more
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex gap-3">
-                  <button className="flex-1 btn-primary text-sm">
-                    Plan Trip
-                  </button>
-                  <button className="px-4 py-2 border border-border rounded-lg hover:bg-muted transition-colors">
-                    <Camera className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
 
         {/* Load More */}
-        <div className="text-center mt-12">
-          <button className="btn-outline-hero">
+        <motion.div 
+          className="text-center mt-12"
+          initial={{ opacity: 0, y: 20 }}
+          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          transition={{ delay: 0.5, duration: 0.6 }}
+        >
+          <motion.button 
+            className="btn-outline-hero"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
             <Filter className="w-5 h-5 mr-2" />
             Discover More Destinations
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-20 pt-16 border-t border-border/50">
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          animate={inView ? "visible" : "hidden"}
+          className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-20 pt-16 border-t border-border/50"
+        >
           {[
             { number: "180+", label: "Destinations" },
             { number: "95%", label: "Satisfaction" },
             { number: "50K+", label: "Travelers" },
             { number: "24/7", label: "Support" }
           ].map((stat, index) => (
-            <div 
+            <motion.div 
               key={index}
-              className="text-center animate-slide-up"
-              style={{ animationDelay: `${index * 0.1}s` }}
+              variants={itemVariants}
+              className="text-center group"
+              whileHover={{ scale: 1.05 }}
             >
-              <div className="text-3xl md:text-4xl font-bold text-gradient-primary mb-2">
+              <div className="text-3xl md:text-4xl font-bold text-gradient-primary mb-2 group-hover:animate-pulse">
                 {stat.number}
               </div>
               <p className="text-muted-foreground font-medium">
                 {stat.label}
               </p>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
