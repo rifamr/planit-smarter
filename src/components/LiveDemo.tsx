@@ -715,7 +715,7 @@ const LiveDemo = () => {
                               {day.day}
                             </div>
                             <div className="text-left">
-                              <h4 className="font-semibold text-foreground">{day.title}</h4>
+                              <h4 className="font-semibold text-foreground">{tmap[day.title] || day.title}</h4>
                               <p className="text-sm text-muted-foreground">{day.date}</p>
                             </div>
                           </div>
@@ -735,7 +735,7 @@ const LiveDemo = () => {
                             >
                               <div className="space-y-4">
                                 <p className="text-sm text-muted-foreground">
-                                  {day.description}
+                                  {tmap[day.description] || day.description}
                                 </p>
 
                                 {/* Activities */}
@@ -746,7 +746,7 @@ const LiveDemo = () => {
                                       <div key={activity.id} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                                         <div className="flex-1">
                                           <div className="flex items-center gap-2">
-                                            <h6 className="font-medium text-foreground">{activity.name}</h6>
+                                            <h6 className="font-medium text-foreground">{tmap[activity.name] || activity.name}</h6>
                                             <div className="flex items-center gap-1">
                                               <Star className="w-3 h-3 text-yellow-400 fill-current" />
                                               <span className="text-xs text-muted-foreground">
@@ -817,7 +817,7 @@ const LiveDemo = () => {
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
                       <h4 className="font-semibold">Itinerary (Text)</h4>
                       <div className="flex items-center gap-2">
-                        <select value={translateLang} onChange={(e)=>setTranslateLang(e.target.value)} className="px-3 py-2 border border-border rounded-lg text-sm">
+                        <select value={translateLang} onChange={(e)=>{ setTranslateLang(e.target.value); setUiLang('en'); }} className="px-3 py-2 border border-border rounded-lg text-sm">
                           {[
                             { code: 'es', label: 'Spanish' },
                             { code: 'fr', label: 'French' },
@@ -829,8 +829,8 @@ const LiveDemo = () => {
                         <button
                           className="px-4 py-2 rounded-lg border border-border hover:bg-muted text-sm"
                           onClick={async()=>{
-                            const res = await translateLibre(itineraryText, translateLang);
-                            setTranslatedText(res);
+                            setUiLang(translateLang);
+                            await translateCurrentItinerary(translateLang);
                           }}
                         >Translate</button>
                       </div>
