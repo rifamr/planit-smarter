@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, MapPin, Sparkles, Globe, Leaf, User, ChevronDown } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -168,8 +169,9 @@ const Navigation = () => {
               ))}
             </div>
 
-            {/* CTA Button */}
-            <div className="hidden lg:flex items-center gap-4 mr-24">
+            {/* CTA Buttons + Theme */}
+            <div className="hidden lg:flex items-center gap-4">
+              <ThemeToggle inline />
               <motion.button
                 className={`px-6 py-2 rounded-lg font-medium transition-all duration-300 ${
                   isScrolled 
