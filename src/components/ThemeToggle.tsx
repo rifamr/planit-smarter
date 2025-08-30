@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Sun, Moon } from "lucide-react";
 
-const ThemeToggle = () => {
+type Props = { inline?: boolean };
+const ThemeToggle = ({ inline = false }: Props) => {
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
@@ -28,10 +29,14 @@ const ThemeToggle = () => {
     }
   };
 
+  const baseClasses = inline
+    ? "relative w-10 h-10 bg-card border border-border rounded-full shadow-sm hover:shadow-md transition-all duration-300 flex items-center justify-center group"
+    : "fixed top-24 right-4 lg:right-8 z-60 w-12 h-12 bg-card border border-border rounded-full shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300 flex items-center justify-center group";
+
   return (
     <button
       onClick={toggleTheme}
-      className="fixed top-24 right-4 lg:right-8 z-60 w-12 h-12 bg-card border border-border rounded-full shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300 flex items-center justify-center group"
+      className={baseClasses}
       aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
     >
       {isDark ? (
