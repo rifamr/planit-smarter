@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion, Reorder } from "framer-motion";
+import { Reorder } from "framer-motion";
 
 const seed = [
   "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800",
@@ -27,9 +27,9 @@ const MoodBoard = () => {
         </div>
         <div onDragOver={(e)=>e.preventDefault()} onDrop={onDrop} className="rounded-2xl border border-dashed p-4 min-h-[200px]">
           <p className="text-sm text-muted-foreground mb-2">Drag images here</p>
-          <Reorder.Group axis="y" values={items} onReorder={setItems} className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <Reorder.Group as="div" axis="y" values={items} onReorder={setItems} className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {items.map((src) => (
-              <Reorder.Item key={src} value={src} as={motion.div} layout className="overflow-hidden rounded-xl hover:shadow-xl transition-all">
+              <Reorder.Item as="div" key={src} value={src} whileDrag={{ scale: 1.02 }} className="overflow-hidden rounded-xl hover:shadow-xl transition-all">
                 <img src={src} alt="mood" loading="lazy" className="w-full h-40 object-cover" />
               </Reorder.Item>
             ))}
