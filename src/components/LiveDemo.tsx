@@ -25,6 +25,7 @@ const LiveDemo = () => {
   const [expandedDay, setExpandedDay] = useState<number | null>(null);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [currencyRates, setCurrencyRates] = useState<Record<string, number>>({});
+  const [selectedCurrency, setSelectedCurrency] = useState<string>('USD');
   const [itineraryText, setItineraryText] = useState<string>("");
   const [translatedText, setTranslatedText] = useState<string>("");
   const [translateLang, setTranslateLang] = useState<string>("es");
@@ -86,6 +87,7 @@ const LiveDemo = () => {
       };
       setGeneratedItinerary(merged);
       setCurrencyRates(rates);
+      setSelectedCurrency(merged.currency?.code || 'USD');
 
       const text = [
         `Destination: ${merged.destination}`,
@@ -176,6 +178,17 @@ const LiveDemo = () => {
       opacity: 1,
       y: 0,
       transition: { duration: 0.6 }
+    }
+  };
+
+  const formatCurrency = (amountUSD: number) => {
+    const code = selectedCurrency || 'USD';
+    const rate = code === 'USD' ? 1 : (currencyRates[code] || 1);
+    const converted = amountUSD * rate;
+    try {
+      return new Intl.NumberFormat(undefined, { style: 'currency', currency: code }).format(Math.round(converted));
+    } catch {
+      return `${code} ${Math.round(converted)}`;
     }
   };
 
@@ -491,7 +504,17 @@ const LiveDemo = () => {
                         </p>
                       </div>
                       
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 items-center">
+                        <label className="text-sm text-muted-foreground">Currency:</label>
+                        <select
+                          value={selectedCurrency}
+                          onChange={(e)=>setSelectedCurrency(e.target.value)}
+                          className="px-2 py-1 border border-border rounded-lg text-sm bg-background"
+                        >
+                          {["USD", ...Object.keys(currencyRates).filter(c=>c!=="USD")].map(code => (
+                            <option key={code} value={code}>{code}</option>
+                          ))}
+                        </select>
                         <motion.button
                           onClick={shareItinerary}
                           className="p-2 rounded-lg hover:bg-primary/10 transition-colors"
@@ -516,20 +539,9 @@ const LiveDemo = () => {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-gradient-to-r from-primary/5 to-accent/5 rounded-xl">
                       <div className="text-center">
                         <div className="text-lg font-bold text-foreground">
-                          ${Math.round(generatedItinerary.total_budget)}
+                          {formatCurrency(generatedItinerary.total_budget)}
                         </div>
                         <div className="text-xs text-muted-foreground">Total Budget</div>
-                        <div className="text-xs text-muted-foreground mt-1">
-                          {(() => {
-                            const code = generatedItinerary.currency?.code || 'USD';
-                            const rate = currencyRates[code];
-                            if (rate && code !== 'USD') {
-                              const symbol = code === 'EUR' ? '€' : code === 'JPY' ? '¥' : code + ' ';
-                              return <span>{symbol}{Math.round(generatedItinerary.total_budget * rate)}</span>;
-                            }
-                            return null;
-                          })()}
-                        </div>
                       </div>
                       <div className="text-center">
                         <div className="text-lg font-bold text-foreground flex items-center justify-center gap-1">
@@ -629,7 +641,7 @@ const LiveDemo = () => {
                                             </div>
                                           </div>
                                           <p className="text-xs text-muted-foreground">
-                                            {activity.duration} • ${activity.price}
+                                            {activity.duration} • {formatCurrency(activity.price)}
                                           </p>
                                         </div>
                                         <button
@@ -653,28 +665,28 @@ const LiveDemo = () => {
                                   <div className="grid grid-cols-2 gap-2 text-xs">
                                     <div className="flex justify-between">
                                       <span className="text-muted-foreground">Activities:</span>
-                                      <span className="font-medium">${Math.round(day.budget.activities)}</span>
+                                      <span className="font-medium">{formatCurrency(day.budget.activities)}</span>
                                     </div>
                                     <div className="w-full bg-muted rounded-full h-2 col-span-2">
                                       <div className="bg-primary h-2 rounded-full transition-all duration-700" style={{ width: barsActive ? `${Math.min(100, Math.round((day.budget.activities/day.budget.total)*100))}%` : '0%' }} />
                                     </div>
                                     <div className="flex justify-between">
                                       <span className="text-muted-foreground">Food:</span>
-                                      <span className="font-medium">${Math.round(day.budget.food)}</span>
+                                      <span className="font-medium">{formatCurrency(day.budget.food)}</span>
                                     </div>
                                     <div className="w-full bg-muted rounded-full h-2 col-span-2">
                                       <div className="bg-accent h-2 rounded-full transition-all duration-700" style={{ width: barsActive ? `${Math.min(100, Math.round((day.budget.food/day.budget.total)*100))}%` : '0%' }} />
                                     </div>
                                     <div className="flex justify-between">
                                       <span className="text-muted-foreground">Transport:</span>
-                                      <span className="font-medium">${Math.round(day.budget.transportation)}</span>
+                                      <span className="font-medium">{formatCurrency(day.budget.transportation)}</span>
                                     </div>
                                     <div className="w-full bg-muted rounded-full h-2 col-span-2">
                                       <div className="bg-secondary h-2 rounded-full transition-all duration-700" style={{ width: barsActive ? `${Math.min(100, Math.round((day.budget.transportation/day.budget.total)*100))}%` : '0%' }} />
                                     </div>
                                     <div className="flex justify-between font-semibold">
                                       <span>Total:</span>
-                                      <span>${Math.round(day.budget.total)}</span>
+                                      <span>{formatCurrency(day.budget.total)}</span>
                                     </div>
                                   </div>
                                 </div>
