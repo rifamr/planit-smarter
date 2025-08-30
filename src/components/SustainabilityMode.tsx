@@ -3,6 +3,7 @@ import { Leaf, TreePine, Recycle, Train, Home, MapPin, TrendingDown, Users, Awar
 import { useInView } from "react-intersection-observer";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import LazyImage from "@/components/ui/LazyImage";
 
 const SustainabilityMode = () => {
   const [activeTab, setActiveTab] = useState("transport");
@@ -394,18 +395,18 @@ const SustainabilityMode = () => {
             <h4 className="text-xl font-bold mb-3 flex items-center gap-2"><Train className="w-5 h-5" /> Eco Transport</h4>
             <p className="text-muted-foreground mb-4">Public transport, cycling, and walkable routes to minimize emissions.</p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <img src="https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?w=800&h=500&fit=crop" alt="Metro" className="rounded-xl w-full h-40 object-cover" />
-              <img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800&h=500&fit=crop" alt="Cycling" className="rounded-xl w-full h-40 object-cover" />
+              <LazyImage src="https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?w=800&h=500&fit=crop" alt="Metro" className="rounded-xl w-full h-40 object-cover" loading="lazy" fallback="/placeholder.svg" sizes="(max-width: 768px) 100vw, 33vw" />
+              <LazyImage src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800&h=500&fit=crop" alt="Cycling" className="rounded-xl w-full h-40 object-cover" loading="lazy" fallback="/placeholder.svg" sizes="(max-width: 768px) 100vw, 33vw" />
               <video src="https://videos.pexels.com/video-files/3356921/3356921-uhd_2560_1440_25fps.mp4" className="rounded-xl w-full h-40 object-cover" autoPlay muted loop playsInline></video>
             </div>
             <div className="mt-4 bg-muted/30 rounded-xl p-4">
               <h5 className="font-semibold mb-2">Low-Carbon Routes</h5>
               <p className="text-sm text-muted-foreground mb-3">Choose rail over short-haul flights, combine transit + walking, and use bike-share for last-mile.</p>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <img src="https://images.unsplash.com/photo-1529070538774-1843cb3265df?w=600&h=400&fit=crop" alt="Tram" className="rounded-lg w-full h-28 object-cover" />
-                <img src="https://images.unsplash.com/photo-1520975922322-569e81b033f9?w=600&h=400&fit=crop" alt="Train" className="rounded-lg w-full h-28 object-cover" />
-                <img src="https://images.unsplash.com/photo-1444492696363-332accfd79d4?w=600&h=400&fit=crop" alt="Walking" className="rounded-lg w-full h-28 object-cover" />
-                <img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=600&h=400&fit=crop" alt="Bike" className="rounded-lg w-full h-28 object-cover" />
+                <LazyImage src="https://images.unsplash.com/photo-1529070538774-1843cb3265df?w=600&h=400&fit=crop" alt="Tram" className="rounded-lg w-full h-28 object-cover" loading="lazy" fallback="/placeholder.svg" sizes="(max-width: 768px) 50vw, 25vw" />
+                <LazyImage src="https://images.unsplash.com/photo-1520975922322-569e81b033f9?w=600&h=400&fit=crop" alt="Train" className="rounded-lg w-full h-28 object-cover" loading="lazy" fallback="/placeholder.svg" sizes="(max-width: 768px) 50vw, 25vw" />
+                <LazyImage src="https://images.unsplash.com/photo-1444492696363-332accfd79d4?w=600&h=400&fit=crop" alt="Walking" className="rounded-lg w-full h-28 object-cover" loading="lazy" fallback="/placeholder.svg" sizes="(max-width: 768px) 50vw, 25vw" />
+                <LazyImage src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=600&h=400&fit=crop" alt="Bike" className="rounded-lg w-full h-28 object-cover" loading="lazy" fallback="/placeholder.svg" sizes="(max-width: 768px) 50vw, 25vw" />
               </div>
             </div>
           </div>
@@ -414,9 +415,9 @@ const SustainabilityMode = () => {
             <h4 className="text-xl font-bold mb-3 flex items-center gap-2"><Home className="w-5 h-5" /> Green Stays</h4>
             <p className="text-muted-foreground mb-4">Certified eco-hotels and local homestays with clear sustainability practices, solar energy, and waste reduction programs.</p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <img src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=800&h=500&fit=crop" alt="Eco lodge" className="rounded-xl w-full h-48 object-cover" />
-              <img src="https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=800&h=500&fit=crop" alt="Local homestay" className="rounded-xl w-full h-48 object-cover" />
-              <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&h=500&fit=crop" alt="Nature cabin" className="rounded-xl w-full h-48 object-cover" />
+              <LazyImage src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=800&h=500&fit=crop" alt="Eco lodge" className="rounded-xl w-full h-48 object-cover" loading="lazy" fallback="/placeholder.svg" sizes="(max-width: 768px) 100vw, 33vw" />
+              <LazyImage src="https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=800&h=500&fit=crop" alt="Local homestay" className="rounded-xl w-full h-48 object-cover" loading="lazy" fallback="/placeholder.svg" sizes="(max-width: 768px) 100vw, 33vw" />
+              <LazyImage src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&h=500&fit=crop" alt="Nature cabin" className="rounded-xl w-full h-48 object-cover" loading="lazy" fallback="/placeholder.svg" sizes="(max-width: 768px) 100vw, 33vw" />
             </div>
           </div>
 
@@ -424,9 +425,9 @@ const SustainabilityMode = () => {
             <h4 className="text-xl font-bold mb-3 flex items-center gap-2"><Users className="w-5 h-5" /> Local Experiences</h4>
             <p className="text-muted-foreground mb-4">Community-based tourism and cultural immersion: cooking with families, craft workshops, market tours.</p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&h=500&fit=crop" alt="Market" className="rounded-xl w-full h-48 object-cover" />
-              <img src="https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?w=800&h=500&fit=crop" alt="Cooking" className="rounded-xl w-full h-48 object-cover" />
-              <img src="https://images.unsplash.com/photo-1545235617-9465d2a55698?w=800&h=500&fit=crop" alt="Crafts" className="rounded-xl w-full h-48 object-cover" />
+              <LazyImage src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&h=500&fit=crop" alt="Market" className="rounded-xl w-full h-48 object-cover" loading="lazy" fallback="/placeholder.svg" sizes="(max-width: 768px) 100vw, 33vw" />
+              <LazyImage src="https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?w=800&h=500&fit=crop" alt="Cooking" className="rounded-xl w-full h-48 object-cover" loading="lazy" fallback="/placeholder.svg" sizes="(max-width: 768px) 100vw, 33vw" />
+              <LazyImage src="https://images.unsplash.com/photo-1545235617-9465d2a55698?w=800&h=500&fit=crop" alt="Crafts" className="rounded-xl w-full h-48 object-cover" loading="lazy" fallback="/placeholder.svg" sizes="(max-width: 768px) 100vw, 33vw" />
             </div>
           </div>
 
@@ -434,9 +435,9 @@ const SustainabilityMode = () => {
             <h4 className="text-xl font-bold mb-3 flex items-center gap-2"><TreePine className="w-5 h-5" /> Carbon Offset</h4>
             <p className="text-muted-foreground mb-4">Understand and offset your footprint with verified projects. Choose reforestation and renewable energy programs.</p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=800&h=500&fit=crop" alt="Forest" className="rounded-xl w-full h-48 object-cover" />
-              <img src="https://images.unsplash.com/photo-1509395176047-4a66953fd231?w=800&h=500&fit=crop" alt="Solar" className="rounded-xl w-full h-48 object-cover" />
-              <img src="https://images.unsplash.com/photo-1516116216624-53e697fedbe9?w=800&h=500&fit=crop" alt="Wind" className="rounded-xl w-full h-48 object-cover" />
+              <LazyImage src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=800&h=500&fit=crop" alt="Forest" className="rounded-xl w-full h-48 object-cover" loading="lazy" fallback="/placeholder.svg" sizes="(max-width: 768px) 100vw, 33vw" />
+              <LazyImage src="https://images.unsplash.com/photo-1509395176047-4a66953fd231?w=800&h=500&fit=crop" alt="Solar" className="rounded-xl w-full h-48 object-cover" loading="lazy" fallback="/placeholder.svg" sizes="(max-width: 768px) 100vw, 33vw" />
+              <LazyImage src="https://images.unsplash.com/photo-1516116216624-53e697fedbe9?w=800&h=500&fit=crop" alt="Wind" className="rounded-xl w-full h-48 object-cover" loading="lazy" fallback="/placeholder.svg" sizes="(max-width: 768px) 100vw, 33vw" />
             </div>
           </div>
         </div>
