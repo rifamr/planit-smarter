@@ -112,7 +112,7 @@ export default function MapView({ activities, height = 320 }: MapViewProps) {
     return (
       <div className="w-full rounded-xl overflow-hidden border border-border">
         {staticUrl ? (
-          <img src={staticUrl} alt="Map preview" className="w-full" height={height} loading="lazy" />
+          <img src={staticUrl} alt="Map preview" className="w-full" height={height} loading="eager" />
         ) : (
           <div className="w-full flex items-center justify-center bg-muted" style={{ height }}>
             <span className="text-sm text-muted-foreground">Map preview unavailable</span>
