@@ -112,6 +112,10 @@ const LiveDemo = () => {
       setGeneratedItinerary(merged);
       setCurrencyRates(rates);
 
+      try {
+        window.dispatchEvent(new CustomEvent('itinerary-generated', { detail: { itinerary: merged, interests: request.interests || [], sustainability: request.sustainability } }));
+      } catch {}
+
       const text = [
         `Destination: ${merged.destination}`,
         `Duration: ${merged.duration} days, Travelers: ${merged.travelers}`,
