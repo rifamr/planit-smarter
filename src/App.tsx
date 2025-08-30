@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import BlogPost from "./pages/BlogPost";
 import Signup from "./pages/Signup";
+import Login from "./pages/Login";
 import Payment from "./pages/Payment";
 
 const queryClient = new QueryClient();
