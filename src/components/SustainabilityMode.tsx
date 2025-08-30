@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Leaf, TreePine, Recycle, Train, Home, MapPin, TrendingDown, Users, Award, ChevronRight } from "lucide-react";
 import { useInView } from "react-intersection-observer";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 const SustainabilityMode = () => {
   const [activeTab, setActiveTab] = useState("transport");
