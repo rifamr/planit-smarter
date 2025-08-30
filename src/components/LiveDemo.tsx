@@ -45,22 +45,33 @@ const LiveDemo = () => {
     }
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!formData.destination || !formData.checkin || !formData.checkout) {
+  // Listen for hero "Plan My Dream Trip" event and trigger generation
+  useEffect(() => {
+    const handler = (ev: Event) => {
+      const e = ev as CustomEvent<TripRequest>;
+      const req = e.detail;
+      if (!req || !req.destination) return;
+      setFormData(prev => ({ ...prev, ...req }));
+      generateFromRequest(req);
+    };
+    window.addEventListener('ai-plan-trip', handler as EventListener);
+    return () => window.removeEventListener('ai-plan-trip', handler as EventListener);
+  }, []);
+
+  const generateFromRequest = async (request: TripRequest) => {
+    if (!request.destination || !request.checkin || !request.checkout) {
       setError('Please fill in all required fields');
       return;
     }
 
     setIsGenerating(true);
     setError(null);
-    
+
     try {
       const [itinerary, rates, forecast] = await Promise.all([
-        generateItinerary(formData),
+        generateItinerary(request),
         getCurrencyRates('USD'),
-        getWeatherForecast(formData.destination)
+        getWeatherForecast(request.destination)
       ]);
 
       const merged: TripItinerary = {
@@ -87,6 +98,11 @@ const LiveDemo = () => {
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await generateFromRequest(formData);
   };
 
   const toggleFavorite = (activityId: string) => {
