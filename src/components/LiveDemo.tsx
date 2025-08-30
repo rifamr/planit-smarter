@@ -38,6 +38,13 @@ const LiveDemo = () => {
 
   const interestsOptions = ["Food", "Culture", "Nature", "Adventure", "Nightlife", "Relaxation"];
 
+  // Prefetch currency rates for selector
+  useEffect(() => {
+    if (!Object.keys(currencyRates).length) {
+      getCurrencyRates('USD').then((r)=>setCurrencyRates(r)).catch(()=>{});
+    }
+  }, []);
+
   // Prefill destination from URL query (e.g., ?destination=Tokyo)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -180,8 +187,35 @@ const LiveDemo = () => {
     }
   };
 
+  const guessCurrencyCode = (dest: string): string | null => {
+    if (!dest) return null;
+    const s = dest.toLowerCase();
+    const pairs: { keys: string[]; code: string }[] = [
+      { keys: ['japan','tokyo','kyoto','osaka'], code: 'JPY' },
+      { keys: ['france','paris','nice','lyon'], code: 'EUR' },
+      { keys: ['spain','madrid','barcelona','sevilla'], code: 'EUR' },
+      { keys: ['italy','rome','milan','venice','florence'], code: 'EUR' },
+      { keys: ['germany','berlin','munich','frankfurt'], code: 'EUR' },
+      { keys: ['united kingdom','uk','england','london'], code: 'GBP' },
+      { keys: ['india','delhi','mumbai','bangalore','kolkata'], code: 'INR' },
+      { keys: ['china','beijing','shanghai','guangzhou'], code: 'CNY' },
+      { keys: ['australia','sydney','melbourne'], code: 'AUD' },
+      { keys: ['canada','toronto','vancouver','montreal'], code: 'CAD' },
+      { keys: ['south korea','korea','seoul'], code: 'KRW' },
+      { keys: ['costa rica','san jose'], code: 'CRC' },
+      { keys: ['greece','santorini','athens'], code: 'EUR' },
+      { keys: ['usa','united states','new york','los angeles','san francisco','miami'], code: 'USD' },
+      { keys: ['mexico','cancun','mexico city'], code: 'MXN' },
+      { keys: ['switzerland','zurich','geneva'], code: 'CHF' }
+    ];
+    for (const p of pairs) {
+      if (p.keys.some(k => s.includes(k))) return p.code;
+    }
+    return null;
+  };
+
   const formatCurrency = (amountUSD: number) => {
-    const autoCode = generatedItinerary?.currency?.code || 'USD';
+    const autoCode = generatedItinerary?.currency?.code || guessCurrencyCode(formData.destination) || 'USD';
     const code = selectedCurrency === 'AUTO' ? autoCode : (selectedCurrency || 'USD');
     const rate = code === 'USD' ? 1 : (currencyRates[code] || 1);
     const converted = amountUSD * rate;
@@ -337,6 +371,24 @@ const LiveDemo = () => {
                     />
                     <div className="flex justify-between text-xs text-muted-foreground mt-1">
                       <span>Budget</span><span>Medium</span><span>Luxury</span>
+                    </div>
+                    <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">Currency:</span>
+                        <select
+                          value={selectedCurrency}
+                          onChange={(e)=>setSelectedCurrency(e.target.value)}
+                          className="px-2 py-1 border border-border rounded-lg text-xs bg-background"
+                        >
+                          <option value="AUTO">Auto ({guessCurrencyCode(formData.destination) || 'USD'})</option>
+                          {Object.keys(currencyRates).map(code => (
+                            <option key={code} value={code}>{code}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Est. daily: {formatCurrency(150 * ({ budget:0.7, medium:1.0, luxury:1.8 }[formData.budget as 'budget'|'medium'|'luxury']))}
+                      </div>
                     </div>
                   </div>
                 </div>
