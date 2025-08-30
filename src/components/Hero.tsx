@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Sparkles, Leaf, Search, MapPin, Calendar, DollarSign, Users, Star, Play, Volume2, VolumeX } from "lucide-react";
+import { ArrowRight, Sparkles, Leaf, Search, MapPin, Calendar, DollarSign, Users, Star, Play } from "lucide-react";
 
 const Hero = () => {
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
