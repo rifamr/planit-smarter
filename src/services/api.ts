@@ -199,11 +199,25 @@ const calculateDuration = (checkin: string, checkout: string): number => {
 };
 
 const generateMockItinerary = (request: TripRequest): TripItinerary => {
-  const duration = calculateDuration(request.checkin, request.checkout);
-  const destination = MOCK_DESTINATIONS.find(d => 
+  const duration = calculateDuration(request.checkin, request.checkout) || 3;
+  const matched = MOCK_DESTINATIONS.find(d =>
     d.name.toLowerCase().includes(request.destination.toLowerCase()) ||
     d.country.toLowerCase().includes(request.destination.toLowerCase())
-  ) || MOCK_DESTINATIONS[0];
+  ) || null;
+
+  const displayName = request.destination && request.destination.trim().length > 0
+    ? request.destination.trim()
+    : (matched ? matched.name : 'Custom Destination');
+
+  const base = matched || {
+    name: displayName,
+    country: displayName,
+    coordinates: { lat: 0, lng: 0 },
+    currency: 'USD',
+    popular_activities: ['sightseeing', 'local cuisine', 'museum', 'park'],
+    best_months: [],
+    sustainability_features: []
+  };
 
   const budgetMultiplier = {
     'budget': 0.7,
@@ -212,53 +226,52 @@ const generateMockItinerary = (request: TripRequest): TripItinerary => {
   }[request.budget] || 1.0;
 
   const baseDayBudget = 150 * budgetMultiplier;
-  const sustainabilityBonus = request.sustainability ? 0.2 : 0;
 
   const days: ItineraryDay[] = Array.from({ length: duration }, (_, index) => {
-    const date = new Date(request.checkin);
+    const date = new Date(request.checkin || new Date());
     date.setDate(date.getDate() + index);
-    
+
     return {
       day: index + 1,
       date: date.toISOString().split('T')[0],
-      title: `Day ${index + 1}: ${index === 0 ? 'Arrival & Exploration' : 
-                               index === 1 ? 'Cultural Immersion' : 
-                               index === duration - 1 ? 'Departure Day' : 
-                               `Adventure & Discovery`}`,
-      description: `Explore the best of ${destination.name} with curated experiences tailored to your interests.`,
+      title: `Day ${index + 1}: ${index === 0 ? 'Arrival & Exploration' :
+                               index === 1 ? 'Cultural Immersion' :
+                               index === duration - 1 ? 'Departure Day' :
+                               'Adventure & Discovery'}`,
+      description: `Explore the best of ${displayName} with curated experiences tailored to your interests.`,
       activities: [
         {
           id: `act-${index}-1`,
-          name: destination.popular_activities[index % destination.popular_activities.length],
+          name: base.popular_activities[index % base.popular_activities.length],
           type: 'attraction',
-          description: `Experience authentic ${destination.popular_activities[index % destination.popular_activities.length]} in ${destination.name}`,
+          description: `Experience authentic ${base.popular_activities[index % base.popular_activities.length]} in ${displayName}`,
           duration: '2-3 hours',
           price: 25 * budgetMultiplier,
           location: {
-            address: `${destination.name} City Center`,
-            coordinates: destination.coordinates,
-            google_maps_url: `https://maps.google.com/?q=${destination.coordinates.lat},${destination.coordinates.lng}`
+            address: `${displayName} City Center`,
+            coordinates: base.coordinates,
+            google_maps_url: `https://maps.google.com/?q=${base.coordinates.lat},${base.coordinates.lng}`
           },
           rating: 4.5 + Math.random() * 0.5,
-          sustainability_features: destination.sustainability_features.slice(0, 2),
+          sustainability_features: base.sustainability_features.slice(0, 2),
           booking_url: '#'
         },
         {
           id: `act-${index}-2`,
-          name: `Local ${destination.popular_activities[(index + 1) % destination.popular_activities.length]} Experience`,
+          name: `Local ${base.popular_activities[(index + 1) % base.popular_activities.length]} Experience`,
           type: 'cultural',
-          description: `Immersive local experience showcasing traditional ${destination.country} culture`,
+          description: `Immersive local experience in ${displayName}`,
           duration: '3-4 hours',
           price: 45 * budgetMultiplier,
           location: {
-            address: `Historic District, ${destination.name}`,
+            address: `Historic District, ${displayName}`,
             coordinates: {
-              lat: destination.coordinates.lat + (Math.random() - 0.5) * 0.01,
-              lng: destination.coordinates.lng + (Math.random() - 0.5) * 0.01
+              lat: base.coordinates.lat + (Math.random() - 0.5) * 0.01,
+              lng: base.coordinates.lng + (Math.random() - 0.5) * 0.01
             }
           },
           rating: 4.7 + Math.random() * 0.3,
-          sustainability_features: request.sustainability ? 
+          sustainability_features: request.sustainability ?
             ['supports local community', 'eco-friendly practices'] : [],
           booking_url: '#'
         }
@@ -267,11 +280,11 @@ const generateMockItinerary = (request: TripRequest): TripItinerary => {
         {
           type: 'breakfast',
           name: 'Local Café',
-          cuisine: `${destination.country} traditional`,
+          cuisine: `${displayName} traditional`,
           price_range: '$',
           location: {
             address: 'Near accommodation',
-            coordinates: destination.coordinates
+            coordinates: base.coordinates
           },
           description: 'Start your day with authentic local breakfast',
           sustainability_rating: request.sustainability ? 4.5 : 3.0
@@ -279,11 +292,11 @@ const generateMockItinerary = (request: TripRequest): TripItinerary => {
         {
           type: 'lunch',
           name: 'Traditional Restaurant',
-          cuisine: `${destination.country} cuisine`,
+          cuisine: `${displayName} cuisine`,
           price_range: '$$',
           location: {
             address: 'City center',
-            coordinates: destination.coordinates
+            coordinates: base.coordinates
           },
           description: 'Savor local flavors and regional specialties',
           sustainability_rating: request.sustainability ? 4.0 : 3.5
@@ -295,36 +308,36 @@ const generateMockItinerary = (request: TripRequest): TripItinerary => {
           price_range: request.budget === 'luxury' ? '$$$' : '$$',
           location: {
             address: 'Restaurant district',
-            coordinates: destination.coordinates
+            coordinates: base.coordinates
           },
           description: 'End your day with a memorable culinary experience',
           sustainability_rating: request.sustainability ? 4.5 : 3.0
         }
       ],
       accommodation: index === 0 ? {
-        name: request.budget === 'luxury' ? 'Luxury Resort' : 
+        name: request.budget === 'luxury' ? 'Luxury Resort' :
               request.budget === 'medium' ? 'Boutique Hotel' : 'Eco Hostel',
-        type: request.budget === 'luxury' ? 'Resort' : 
+        type: request.budget === 'luxury' ? 'Resort' :
               request.budget === 'medium' ? 'Hotel' : 'Hostel',
-        rating: request.budget === 'luxury' ? 4.8 : 
+        rating: request.budget === 'luxury' ? 4.8 :
                 request.budget === 'medium' ? 4.2 : 4.0,
         price_per_night: baseDayBudget * 0.4,
         location: {
-          address: `${destination.name} Premium District`,
-          coordinates: destination.coordinates
+          address: `${displayName} Premium District`,
+          coordinates: base.coordinates
         },
-        amenities: request.budget === 'luxury' ? 
+        amenities: request.budget === 'luxury' ?
           ['spa', 'pool', 'concierge', 'fine dining'] :
-          request.budget === 'medium' ? 
+          request.budget === 'medium' ?
           ['wifi', 'breakfast', 'gym', 'restaurant'] :
           ['wifi', 'shared kitchen', 'common areas'],
-        sustainability_certifications: request.sustainability ? 
+        sustainability_certifications: request.sustainability ?
           ['Green Key', 'LEED Certified', 'Local sourcing'] : []
       } : undefined,
       transportation: {
         type: request.sustainability ? 'public_transport' : 'taxi',
-        description: request.sustainability ? 
-          'Eco-friendly public transport and walking' : 
+        description: request.sustainability ?
+          'Eco-friendly public transport and walking' :
           'Convenient taxi and ride-sharing',
         duration: '30-45 minutes',
         cost: request.sustainability ? 5 : 15,
@@ -355,14 +368,14 @@ const generateMockItinerary = (request: TripRequest): TripItinerary => {
 
   return {
     id: `trip-${Date.now()}`,
-    destination: destination.name,
+    destination: displayName,
     duration,
     total_budget: baseDayBudget * duration,
     sustainability_score: request.sustainability ? 4.2 + Math.random() * 0.8 : 2.8 + Math.random() * 1.2,
     days,
     summary: {
       highlights: [
-        `Authentic ${destination.country} cultural experiences`,
+        `Authentic ${displayName} cultural experiences`,
         `${duration} days of curated adventures`,
         request.sustainability ? 'Eco-friendly travel options' : 'Convenient travel arrangements',
         `Local cuisine and dining experiences`,
@@ -373,8 +386,8 @@ const generateMockItinerary = (request: TripRequest): TripItinerary => {
       local_impact_score: request.sustainability ? 4.5 : 3.2
     },
     currency: {
-      code: destination.currency,
-      exchange_rate: 1.0, // Will be updated by currency API
+      code: base.currency,
+      exchange_rate: 1.0,
       last_updated: new Date().toISOString()
     }
   };

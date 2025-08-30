@@ -6,13 +6,11 @@ const Hero = () => {
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [heroDestination, setHeroDestination] = useState("");
-  const [searchForm, setSearchForm] = useState({
-    checkin: "",
-    checkout: "",
-    travelers: 2,
-    budget: "medium",
-    sustainability: false
-  });
+  const [heroCheckIn, setHeroCheckIn] = useState("");
+  const [heroCheckOut, setHeroCheckOut] = useState("");
+  const [heroTravelers, setHeroTravelers] = useState<number>(2);
+  const [heroBudget, setHeroBudget] = useState<string>("medium");
+  const [heroEcoMode, setHeroEcoMode] = useState<boolean>(false);
 
   const popularDestinations = [
     "Tokyo, Japan", "Paris, France", "New York, USA", "London, UK", 
@@ -28,23 +26,19 @@ const Hero = () => {
   };
 
   const handlePlanTrip = () => {
-    const today = new Date();
-    const toISO = (d: Date) => d.toISOString().split('T')[0];
-    const checkin = searchForm.checkin || toISO(today);
-    const out = new Date(checkin);
-    out.setDate(out.getDate() + 3);
-    const checkout = searchForm.checkout || toISO(out);
-
     const detail = {
       destination: heroDestination,
-      checkin,
-      checkout,
-      travelers: Number(searchForm.travelers) || 2,
-      budget: searchForm.budget || 'medium',
-      sustainability: !!searchForm.sustainability
+      checkin: heroCheckIn,
+      checkout: heroCheckOut,
+      travelers: Number(heroTravelers) || 2,
+      budget: heroBudget || 'medium',
+      sustainability: !!heroEcoMode
     };
 
     window.dispatchEvent(new CustomEvent('ai-plan-trip', { detail }));
+
+    const el = document.getElementById('itinerary-generator');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const handleExploreEco = () => {
@@ -287,8 +281,8 @@ const Hero = () => {
                       <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                       <input
                         type="date"
-                        value={searchForm.checkin}
-                        onChange={(e) => setSearchForm({...searchForm, checkin: e.target.value})}
+                        value={heroCheckIn}
+                        onChange={(e) => setHeroCheckIn(e.target.value)}
                         className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-gray-900"
                         min={new Date().toISOString().split('T')[0]}
                       />
@@ -304,10 +298,10 @@ const Hero = () => {
                       <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                       <input
                         type="date"
-                        value={searchForm.checkout}
-                        onChange={(e) => setSearchForm({...searchForm, checkout: e.target.value})}
+                        value={heroCheckOut}
+                        onChange={(e) => setHeroCheckOut(e.target.value)}
                         className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-gray-900"
-                        min={searchForm.checkin || new Date().toISOString().split('T')[0]}
+                        min={heroCheckIn || new Date().toISOString().split('T')[0]}
                       />
                     </div>
                   </div>
@@ -322,8 +316,11 @@ const Hero = () => {
                     <div className="relative">
                       <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                       <select
-                        value={searchForm.travelers}
-                        onChange={(e) => setSearchForm({...searchForm, travelers: Number(e.target.value)})}
+                        value={heroTravelers}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          setHeroTravelers(v === '5+' ? 5 : Number(v));
+                        }}
                         className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all appearance-none text-gray-900"
                       >
                         <option value={1}>1 Traveler</option>
@@ -343,8 +340,8 @@ const Hero = () => {
                     <div className="relative">
                       <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                       <select
-                        value={searchForm.budget}
-                        onChange={(e) => setSearchForm({...searchForm, budget: e.target.value})}
+                        value={heroBudget}
+                        onChange={(e) => setHeroBudget(e.target.value)}
                         className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all appearance-none text-gray-900"
                       >
                         <option value="budget">Budget ($50-100/day)</option>
@@ -359,8 +356,8 @@ const Hero = () => {
                     <label className="flex items-center gap-3 cursor-pointer w-full">
                       <input
                         type="checkbox"
-                        checked={searchForm.sustainability}
-                        onChange={(e) => setSearchForm({...searchForm, sustainability: e.target.checked})}
+                        checked={heroEcoMode}
+                        onChange={(e) => setHeroEcoMode(e.target.checked)}
                         className="w-5 h-5 text-secondary rounded border-gray-300 focus:ring-secondary"
                       />
                       <div className="flex items-center gap-2">

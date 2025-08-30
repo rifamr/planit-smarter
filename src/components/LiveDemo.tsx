@@ -45,14 +45,16 @@ const LiveDemo = () => {
     }
   }, []);
 
-  // Listen for hero "Plan My Dream Trip" event and trigger generation
+  // Listen for hero "Plan My Dream Trip" event: autofill and notify
   useEffect(() => {
     const handler = (ev: Event) => {
       const e = ev as CustomEvent<TripRequest>;
       const req = e.detail;
       if (!req || !req.destination) return;
       setFormData(prev => ({ ...prev, ...req }));
-      generateFromRequest(req);
+      const el = document.getElementById('itinerary-generator');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      toast.success('Your itinerary form has been auto-filled!');
     };
     window.addEventListener('ai-plan-trip', handler as EventListener);
     return () => window.removeEventListener('ai-plan-trip', handler as EventListener);
