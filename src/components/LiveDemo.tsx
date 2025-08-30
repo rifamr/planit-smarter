@@ -25,7 +25,7 @@ const LiveDemo = () => {
   const [expandedDay, setExpandedDay] = useState<number | null>(null);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [currencyRates, setCurrencyRates] = useState<Record<string, number>>({});
-  const [selectedCurrency, setSelectedCurrency] = useState<string>('USD');
+  const [selectedCurrency, setSelectedCurrency] = useState<string>('AUTO');
   const [itineraryText, setItineraryText] = useState<string>("");
   const [translatedText, setTranslatedText] = useState<string>("");
   const [translateLang, setTranslateLang] = useState<string>("es");
@@ -87,7 +87,6 @@ const LiveDemo = () => {
       };
       setGeneratedItinerary(merged);
       setCurrencyRates(rates);
-      setSelectedCurrency(merged.currency?.code || 'USD');
 
       const text = [
         `Destination: ${merged.destination}`,
@@ -182,7 +181,8 @@ const LiveDemo = () => {
   };
 
   const formatCurrency = (amountUSD: number) => {
-    const code = selectedCurrency || 'USD';
+    const autoCode = generatedItinerary?.currency?.code || 'USD';
+    const code = selectedCurrency === 'AUTO' ? autoCode : (selectedCurrency || 'USD');
     const rate = code === 'USD' ? 1 : (currencyRates[code] || 1);
     const converted = amountUSD * rate;
     try {
@@ -511,6 +511,7 @@ const LiveDemo = () => {
                           onChange={(e)=>setSelectedCurrency(e.target.value)}
                           className="px-2 py-1 border border-border rounded-lg text-sm bg-background"
                         >
+                          <option value="AUTO">Auto ({generatedItinerary?.currency?.code || 'USD'})</option>
                           {["USD", ...Object.keys(currencyRates).filter(c=>c!=="USD")].map(code => (
                             <option key={code} value={code}>{code}</option>
                           ))}
