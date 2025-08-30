@@ -601,7 +601,7 @@ const LiveDemo = () => {
                       <div>
                         <h3 className="text-2xl font-bold text-foreground flex items-center gap-3">
                           <Navigation className="w-6 h-6 text-accent" />
-                          {generatedItinerary.destination}
+                          {tmap[generatedItinerary.destination] || generatedItinerary.destination}
                         </h3>
                         <p className="text-muted-foreground">
                           {generatedItinerary.duration} days • {generatedItinerary.travelers} travelers
