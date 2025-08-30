@@ -297,7 +297,17 @@ const SustainabilityMode = () => {
               <p className="text-secondary-foreground/90 mb-4">
                 Enable Sustainability Mode and start planning your eco-friendly adventure today.
               </p>
-              <button className="bg-white text-secondary font-semibold px-6 py-3 rounded-xl hover:bg-gray-100 transition-colors flex items-center gap-2">
+              <button
+                onClick={() => {
+                  const el = document.documentElement;
+                  el.classList.add('eco');
+                  try { localStorage.setItem('ecoMode', '1'); } catch {}
+                  try { (window as any).toast?.success?.('Sustainability Mode enabled'); } catch {}
+                  const it = document.getElementById('itinerary-generator');
+                  if (it) it.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}
+                className="bg-white text-secondary font-semibold px-6 py-3 rounded-xl hover:bg-gray-100 transition-colors flex items-center gap-2"
+              >
                 Enable Sustainability Mode
                 <ChevronRight className="w-4 h-4" />
               </button>
