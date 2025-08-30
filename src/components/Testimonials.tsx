@@ -215,7 +215,7 @@ const Testimonials = () => {
 
         {/* Main Testimonial Display */}
         <div className="relative max-w-6xl mx-auto mb-16">
-          <div className="relative h-[600px] lg:h-[500px] overflow-hidden rounded-3xl">
+          <div className="relative h-[420px] md:h-[520px] lg:h-[500px] overflow-hidden rounded-3xl">
             <AnimatePresence mode="wait" custom={direction}>
               <motion.div
                 key={currentIndex}
