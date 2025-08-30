@@ -432,8 +432,12 @@ const SustainabilityMode = () => {
 
           <div id="carbon-offset" className="feature-card-premium">
             <h4 className="text-xl font-bold mb-3 flex items-center gap-2"><TreePine className="w-5 h-5" /> Carbon Offset</h4>
-            <p className="text-muted-foreground mb-4">Understand and offset your footprint with verified projects.</p>
-            <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=1200&h=600&fit=crop" alt="Carbon offset" className="rounded-xl w-full h-56 object-cover" />
+            <p className="text-muted-foreground mb-4">Understand and offset your footprint with verified projects. Choose reforestation and renewable energy programs.</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=800&h=500&fit=crop" alt="Forest" className="rounded-xl w-full h-48 object-cover" />
+              <img src="https://images.unsplash.com/photo-1509395176047-4a66953fd231?w=800&h=500&fit=crop" alt="Solar" className="rounded-xl w-full h-48 object-cover" />
+              <img src="https://images.unsplash.com/photo-1516116216624-53e697fedbe9?w=800&h=500&fit=crop" alt="Wind" className="rounded-xl w-full h-48 object-cover" />
+            </div>
           </div>
         </div>
       </div>
