@@ -196,6 +196,7 @@ const LiveDemo = () => {
     try {
       const blocks = new Set<string>();
       blocks.add(`Destination: ${generatedItinerary.destination}`);
+      blocks.add(generatedItinerary.destination);
       generatedItinerary.days.forEach((d) => {
         blocks.add(d.title);
         blocks.add(d.description);
