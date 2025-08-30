@@ -422,6 +422,8 @@ const FeaturedDestinations = () => {
                           interests: [...new Set([...(destination.category||[]), ...(destination.highlights||[])])].slice(0,5)
                         } as any;
                         window.dispatchEvent(new CustomEvent('ai-plan-trip', { detail }));
+                        const it = document.getElementById('itinerary-generator');
+                        if (it) it.scrollIntoView({ behavior: 'smooth', block: 'start' });
                       }}
                       aria-label={`Plan trip to ${destination.name}`}
                     >
