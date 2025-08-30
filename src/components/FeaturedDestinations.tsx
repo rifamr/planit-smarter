@@ -200,23 +200,31 @@ const FeaturedDestinations = () => {
         </motion.div>
 
         {/* Category Filters */}
-        <div className="flex flex-wrap justify-center gap-3 mb-12 animate-slide-up">
-          {categories.map((category) => (
-            <button
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate={inView ? "visible" : "hidden"}
+          className="flex flex-wrap justify-center gap-3 mb-12"
+        >
+          {categories.map((category, index) => (
+            <motion.button
               key={category.id}
+              variants={itemVariants}
               onClick={() => setActiveFilter(category.id)}
               className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
                 activeFilter === category.id
-                  ? 'bg-primary text-white shadow-lg transform scale-105'
-                  : 'bg-card text-muted-foreground hover:bg-primary/10 hover:text-primary hover:scale-105'
+                  ? 'bg-primary text-white shadow-lg'
+                  : 'bg-card text-muted-foreground hover:bg-primary/10 hover:text-primary'
               }`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               <category.icon className="w-4 h-4" />
               <span className="hidden sm:inline">{category.label}</span>
               <span className="sm:hidden">{category.id}</span>
-            </button>
+            </motion.button>
           ))}
-        </div>
+        </motion.div>
 
         {/* Destinations Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
