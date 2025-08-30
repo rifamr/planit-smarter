@@ -4,6 +4,7 @@ import { useInView } from "react-intersection-observer";
 import { MapPin, Star, Heart, Clock, Camera, Utensils, Mountain, Users, Filter, Loader2 } from "lucide-react";
 import { getFeaturedDestinations } from "@/services/api";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 interface Destination {
   id: string;
@@ -177,6 +178,23 @@ const FeaturedDestinations = () => {
       y: 0,
       transition: { duration: 0.6 }
     }
+  };
+
+  const AnimatedNumber: React.FC<{ value: string; suffix?: string }> = ({ value, suffix = '' }) => {
+    const [display, setDisplay] = useState(0);
+    useEffect(() => {
+      const num = parseInt(value);
+      if (isNaN(num)) return;
+      const duration = 1200;
+      const startTime = performance.now();
+      const tick = (now: number) => {
+        const p = Math.min(1, (now - startTime) / duration);
+        setDisplay(Math.floor(p * num));
+        if (p < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }, [value]);
+    return <span>{display}{suffix}</span>;
   };
 
   return (
@@ -438,10 +456,17 @@ const FeaturedDestinations = () => {
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ delay: 0.5, duration: 0.6 }}
         >
-          <motion.button 
+          <motion.button
             className="btn-outline-hero"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            onClick={() => {
+              setDestinations(prev => [
+                ...prev,
+                ...mockDestinations.map(d => ({ ...d, id: d.id + "-more-" + Math.random().toString(36).slice(2,6) }))
+              ]);
+              toast.success('Loaded more destinations');
+            }}
           >
             <Filter className="w-5 h-5 mr-2" />
             Discover More Destinations
@@ -456,19 +481,19 @@ const FeaturedDestinations = () => {
           className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-20 pt-16 border-t border-border/50"
         >
           {[
-            { number: "180+", label: "Destinations" },
-            { number: "95%", label: "Satisfaction" },
-            { number: "50K+", label: "Travelers" },
-            { number: "24/7", label: "Support" }
+            { number: "180", suffix: "+", label: "Destinations" },
+            { number: "95", suffix: "%", label: "Satisfaction" },
+            { number: "50000", suffix: "+", label: "Travelers" },
+            { number: "24", suffix: "/7", label: "Support" }
           ].map((stat, index) => (
-            <motion.div 
+            <motion.div
               key={index}
               variants={itemVariants}
               className="text-center group"
               whileHover={{ scale: 1.05 }}
             >
               <div className="text-3xl md:text-4xl font-bold text-gradient-primary mb-2 group-hover:animate-pulse">
-                {stat.number}
+                <AnimatedNumber value={stat.number} suffix={stat.suffix} />
               </div>
               <p className="text-muted-foreground font-medium">
                 {stat.label}
