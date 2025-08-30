@@ -94,6 +94,8 @@ const Hero = () => {
           muted={isMuted}
           loop
           playsInline
+          preload="metadata"
+          aria-hidden="true"
           className={`w-full h-full object-cover transition-opacity duration-1000 ${
             isVideoLoaded ? 'opacity-100' : 'opacity-0'
           }`}
@@ -101,12 +103,12 @@ const Hero = () => {
           onError={() => setIsVideoLoaded(false)}
           poster="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&h=1080&fit=crop"
         >
-          <source 
-            src="https://player.vimeo.com/external/394498002.hd.mp4?s=5dcf97b3d92a40dcf7b1de17212d6c84726e6ca7&profile_id=175" 
-            type="video/mp4" 
+          <source
+            src="https://player.vimeo.com/external/394498002.hd.mp4?s=5dcf97b3d92a40dcf7b1de17212d6c84726e6ca7&profile_id=175"
+            type="video/mp4"
           />
-          <source 
-            src="https://cdn.pixabay.com/vimeo/394498002/travel-27818.mp4?width=1920&hash=4e89c4f8b3a4b5bc8c5f7e9d1a2b3c4d5e6f7g8h"
+          <source
+            src="https://videos.pexels.com/video-files/33645089/14297758_640_360_24fps.mp4"
             type="video/mp4"
           />
         </video>
