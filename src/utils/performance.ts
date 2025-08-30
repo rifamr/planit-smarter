@@ -39,22 +39,6 @@ export const throttle = <T extends (...args: any[]) => any>(
   };
 };
 
-// Lazy loading utility for components
-export const createLazyComponent = <T extends React.ComponentType<any>>(
-  importFunc: () => Promise<{ default: T }>,
-  fallback?: React.ComponentType
-) => {
-  const LazyComponent = React.lazy(importFunc);
-  
-  return function WrappedComponent(props: React.ComponentProps<T>) {
-    return (
-      <React.Suspense fallback={fallback ? React.createElement(fallback) : <div>Loading...</div>}>
-        <LazyComponent {...props} />
-      </React.Suspense>
-    );
-  };
-};
-
 // Image preloader for critical images
 export const preloadImage = (src: string): Promise<HTMLImageElement> => {
   return new Promise((resolve, reject) => {
@@ -78,6 +62,7 @@ export const preloadImages = async (srcs: string[]): Promise<HTMLImageElement[]>
 
 // Check if user prefers reduced motion
 export const prefersReducedMotion = (): boolean => {
+  if (typeof window === 'undefined') return false;
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 };
 
@@ -122,6 +107,7 @@ export const observeWebVitals = () => {
 
 // Memory usage monitoring
 export const getMemoryUsage = () => {
+  if (typeof window === 'undefined') return null;
   if ('memory' in performance) {
     const memory = (performance as any).memory;
     return {
@@ -135,6 +121,7 @@ export const getMemoryUsage = () => {
 
 // Network information
 export const getNetworkInfo = () => {
+  if (typeof window === 'undefined') return null;
   if ('connection' in navigator) {
     const connection = (navigator as any).connection;
     return {
@@ -149,6 +136,19 @@ export const getNetworkInfo = () => {
 
 // Device capability detection
 export const getDeviceCapabilities = () => {
+  if (typeof window === 'undefined') return {
+    isMobile: false,
+    isTablet: false,
+    isTouch: false,
+    supportsWebP: false,
+    supportsAvif: false,
+    devicePixelRatio: 1,
+    screenWidth: 1920,
+    screenHeight: 1080,
+    viewportWidth: 1920,
+    viewportHeight: 1080
+  };
+
   return {
     isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
     isTablet: /iPad|Android|Tablet/i.test(navigator.userAgent),
@@ -213,6 +213,8 @@ export const addResourceHints = (resources: Array<{
   type?: string;
   crossOrigin?: string;
 }>) => {
+  if (typeof document === 'undefined') return;
+  
   resources.forEach(resource => {
     const link = document.createElement('link');
     link.rel = 'preload';
@@ -226,6 +228,8 @@ export const addResourceHints = (resources: Array<{
 
 // Defer non-critical CSS
 export const loadCSSAsync = (href: string) => {
+  if (typeof document === 'undefined') return;
+  
   const link = document.createElement('link');
   link.rel = 'preload';
   link.href = href;
@@ -241,6 +245,8 @@ export const createIntersectionObserver = (
   callback: IntersectionObserverCallback,
   options: IntersectionObserverInit = {}
 ) => {
+  if (typeof window === 'undefined') return null;
+  
   const defaultOptions: IntersectionObserverInit = {
     root: null,
     rootMargin: '50px',
@@ -273,6 +279,7 @@ export const calculateVisibleItems = (
 
 // Bundle size tracker
 export const trackBundleSize = () => {
+  if (typeof window === 'undefined') return;
   if ('performance' in window && 'getEntriesByType' in performance) {
     const resources = performance.getEntriesByType('resource') as PerformanceResourceTiming[];
     const scripts = resources.filter(resource => resource.name.endsWith('.js'));
@@ -295,9 +302,10 @@ export const trackBundleSize = () => {
   }
 };
 
-// Local storage with compression
+// Local storage with error handling
 export const compressedStorage = {
   set: (key: string, value: any) => {
+    if (typeof window === 'undefined') return;
     try {
       const compressed = JSON.stringify(value);
       localStorage.setItem(key, compressed);
@@ -307,6 +315,7 @@ export const compressedStorage = {
   },
   
   get: (key: string) => {
+    if (typeof window === 'undefined') return null;
     try {
       const item = localStorage.getItem(key);
       return item ? JSON.parse(item) : null;
@@ -317,12 +326,41 @@ export const compressedStorage = {
   },
   
   remove: (key: string) => {
+    if (typeof window === 'undefined') return;
     try {
       localStorage.removeItem(key);
     } catch (error) {
       console.warn('Failed to remove from localStorage:', error);
     }
   }
+};
+
+// Initialize performance monitoring
+export const initPerformanceMonitoring = () => {
+  if (typeof window === 'undefined') return;
+  
+  // Start monitoring on page load
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      observeWebVitals();
+      trackBundleSize();
+      
+      const memory = getMemoryUsage();
+      const network = getNetworkInfo();
+      const device = getDeviceCapabilities();
+      
+      console.log('Performance Metrics:', {
+        memory,
+        network,
+        device: {
+          isMobile: device.isMobile,
+          isTouch: device.isTouch,
+          pixelRatio: device.devicePixelRatio,
+          viewport: `${device.viewportWidth}x${device.viewportHeight}`
+        }
+      });
+    }, 1000);
+  });
 };
 
 export default {
@@ -341,5 +379,6 @@ export default {
   createIntersectionObserver,
   calculateVisibleItems,
   trackBundleSize,
-  compressedStorage
+  compressedStorage,
+  initPerformanceMonitoring
 };
