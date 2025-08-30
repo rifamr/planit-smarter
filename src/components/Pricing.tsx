@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Check, Star, Zap, Crown, Users, ArrowRight, Sparkles } from "lucide-react";
 
 const Pricing = () => {
   const [isAnnual, setIsAnnual] = useState(false);
+  const navigate = useNavigate();
 
   const plans = [
     {
@@ -234,7 +236,8 @@ const Pricing = () => {
                   )}
                 </div>
 
-                <button 
+                <button
+                  onClick={() => navigate('/payment', { state: { plan: plan.id, price: isAnnual ? plan.annualPrice : plan.monthlyPrice } })}
                   className={`w-full py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${
                     plan.popular
                       ? 'btn-hero'
@@ -411,7 +414,7 @@ const Pricing = () => {
             <p className="text-muted-foreground mb-6">
               Start with our free plan and upgrade anytime as your travel needs grow.
             </p>
-            <button className="btn-hero">
+            <button className="btn-hero" onClick={() => navigate('/payment')}>
               Start Your Journey Today
               <ArrowRight className="w-5 h-5 ml-2" />
             </button>

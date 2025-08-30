@@ -193,11 +193,11 @@ const Navigation = () => {
                     ? 'text-muted-foreground hover:text-primary'
                     : 'text-white/90 hover:text-white'
                 }`}
-                onClick={() => scrollToSection('pricing')}
+                onClick={() => { window.location.href = '/signup'; }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                Sign In
+                Sign Up
               </motion.button>
 
               <motion.button

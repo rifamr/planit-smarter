@@ -161,18 +161,22 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 // LibreTranslate (no key required)
 export const translateLibre = async (text: string, target: string): Promise<string> => {
-  try {
-    const res = await fetch('https://libretranslate.de/translate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ q: text, source: 'auto', target })
-    });
-    if (res.ok) {
-      const data = await res.json();
-      return data.translatedText || text;
+  const payload = { q: text, source: 'auto', target, format: 'text' } as const;
+  const endpoints = ['https://libretranslate.de/translate', 'https://libretranslate.com/translate'];
+  for (const url of endpoints) {
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', accept: 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.translatedText) return data.translatedText;
+      }
+    } catch (e) {
+      console.warn('LibreTranslate failed', url, e);
     }
-  } catch (e) {
-    console.warn('LibreTranslate failed', e);
   }
   return text;
 };
