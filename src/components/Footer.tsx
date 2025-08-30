@@ -6,7 +6,7 @@ const Footer = () => {
     { label: "How It Works", href: "#how-it-works" },
     { label: "Features", href: "#features" },
     { label: "Pricing", href: "#pricing" },
-    { label: "Travel Blog", href: "#blog" }
+    { label: "Travel Blog", href: "#travel-blog" }
   ];
 
   const support = [
@@ -67,8 +67,18 @@ const Footer = () => {
             <ul className="space-y-3">
               {quickLinks.map((link, index) => (
                 <li key={index}>
-                  <a 
+                  <a
                     href={link.href}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      const id = link.href.replace('#','');
+                      const el = document.getElementById(id);
+                      if (el) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      } else {
+                        alert('Coming soon');
+                      }
+                    }}
                     className="text-white/70 hover:text-primary transition-colors duration-300 hover:translate-x-1 transform inline-block"
                   >
                     {link.label}
@@ -84,8 +94,18 @@ const Footer = () => {
             <ul className="space-y-3">
               {support.map((link, index) => (
                 <li key={index}>
-                  <a 
+                  <a
                     href={link.href}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      const id = link.href.replace('#','');
+                      const el = document.getElementById(id);
+                      if (el) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      } else {
+                        alert('Coming soon');
+                      }
+                    }}
                     className="text-white/70 hover:text-primary transition-colors duration-300 hover:translate-x-1 transform inline-block"
                   >
                     {link.label}
@@ -101,8 +121,18 @@ const Footer = () => {
             <ul className="space-y-3">
               {legal.map((link, index) => (
                 <li key={index}>
-                  <a 
+                  <a
                     href={link.href}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      const id = link.href.replace('#','');
+                      const el = document.getElementById(id);
+                      if (el) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      } else {
+                        alert('Coming soon');
+                      }
+                    }}
                     className="text-white/70 hover:text-primary transition-colors duration-300 hover:translate-x-1 transform inline-block"
                   >
                     {link.label}
@@ -134,6 +164,7 @@ const Footer = () => {
                   key={index}
                   href={social.href}
                   aria-label={social.label}
+                  onClick={(e) => { e.preventDefault(); alert('Coming soon'); }}
                   className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-primary hover:scale-110 transition-all duration-300 group"
                 >
                   <social.icon className="w-5 h-5 text-white/70 group-hover:text-white" />
