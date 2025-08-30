@@ -4,6 +4,8 @@ import { useInView } from "react-intersection-observer";
 import { MapPin, Calendar, DollarSign, Leaf, Sparkles, Users, Clock, Star, Download, Share2, Heart, Navigation, Loader2, ChevronRight, ChevronDown } from "lucide-react";
 import { generateItinerary, type TripRequest, type TripItinerary, getCurrencyRates, getWeatherForecast } from "@/services/api";
 import MapView from "@/components/MapView";
+import LeafletMap from "@/components/LeafletMap";
+import { translateLibre } from "@/services/api";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
@@ -23,6 +25,9 @@ const LiveDemo = () => {
   const [expandedDay, setExpandedDay] = useState<number | null>(null);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [currencyRates, setCurrencyRates] = useState<Record<string, number>>({});
+  const [itineraryText, setItineraryText] = useState<string>("");
+  const [translatedText, setTranslatedText] = useState<string>("");
+  const [translateLang, setTranslateLang] = useState<string>("es");
 
   const [ref, inView] = useInView({
     threshold: 0.1,
@@ -67,6 +72,15 @@ const LiveDemo = () => {
       };
       setGeneratedItinerary(merged);
       setCurrencyRates(rates);
+
+      const text = [
+        `Destination: ${merged.destination}`,
+        `Duration: ${merged.duration} days, Travelers: ${merged.travelers}`,
+        '',
+        ...merged.days.map(d => `Day ${d.day} (${d.date}): ${d.title}\n- ${d.description}\n- Activities: ${d.activities.map(a => a.name).join(', ')}`)
+      ].join('\n');
+      setItineraryText(text);
+      setTranslatedText("");
     } catch (err) {
       setError('Failed to generate itinerary. Please try again.');
       console.error('Error:', err);
@@ -470,12 +484,15 @@ const LiveDemo = () => {
                         </div>
                         <div className="text-xs text-muted-foreground">Total Budget</div>
                         <div className="text-xs text-muted-foreground mt-1">
-                          {currencyRates.EUR && (
-                            <span className="mr-2">€{Math.round(generatedItinerary.total_budget * currencyRates.EUR)}</span>
-                          )}
-                          {currencyRates.JPY && (
-                            <span>¥{Math.round(generatedItinerary.total_budget * currencyRates.JPY)}</span>
-                          )}
+                          {(() => {
+                            const code = generatedItinerary.currency?.code || 'USD';
+                            const rate = currencyRates[code];
+                            if (rate && code !== 'USD') {
+                              const symbol = code === 'EUR' ? '€' : code === 'JPY' ? '¥' : code + ' ';
+                              return <span>{symbol}{Math.round(generatedItinerary.total_budget * rate)}</span>;
+                            }
+                            return null;
+                          })()}
                         </div>
                       </div>
                       <div className="text-center">
@@ -499,8 +516,20 @@ const LiveDemo = () => {
                       </div>
                     </div>
 
-                    <div className="mt-4">
-                      <MapView activities={generatedItinerary.days.flatMap(d => d.activities)} height={280} />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                      <div className="p-4 border border-border/50 rounded-xl">
+                        <h4 className="font-semibold mb-2">Weather</h4>
+                        {generatedItinerary.days[0]?.weather ? (
+                          <div className="text-sm text-muted-foreground">
+                            <div>Today: {generatedItinerary.days[0].weather.condition}</div>
+                            <div>Temp: {Math.round(generatedItinerary.days[0].weather.temperature.low)}°C - {Math.round(generatedItinerary.days[0].weather.temperature.high)}°C</div>
+                            <div>Precipitation: {generatedItinerary.days[0].weather.precipitation_chance}%</div>
+                          </div>
+                        ) : (
+                          <div className="text-sm text-muted-foreground">Weather data unavailable</div>
+                        )}
+                      </div>
+                      <LeafletMap city={generatedItinerary.destination} height={180} />
                     </div>
                   </div>
 
@@ -610,7 +639,33 @@ const LiveDemo = () => {
                       </motion.div>
                     ))}
                   </div>
-                  
+
+                  {/* Itinerary (Text) + Translation */}
+                  <div className="mt-6 p-4 border border-border/50 rounded-xl">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+                      <h4 className="font-semibold">Itinerary (Text)</h4>
+                      <div className="flex items-center gap-2">
+                        <select value={translateLang} onChange={(e)=>setTranslateLang(e.target.value)} className="px-3 py-2 border border-border rounded-lg text-sm">
+                          {[
+                            { code: 'es', label: 'Spanish' },
+                            { code: 'fr', label: 'French' },
+                            { code: 'de', label: 'German' },
+                            { code: 'ja', label: 'Japanese' },
+                            { code: 'hi', label: 'Hindi' },
+                          ].map(l => <option key={l.code} value={l.code}>{l.label}</option>)}
+                        </select>
+                        <button
+                          className="px-4 py-2 rounded-lg border border-border hover:bg-muted text-sm"
+                          onClick={async()=>{
+                            const res = await translateLibre(itineraryText, translateLang);
+                            setTranslatedText(res);
+                          }}
+                        >Translate</button>
+                      </div>
+                    </div>
+                    <pre className="text-xs whitespace-pre-wrap bg-muted/30 p-3 rounded-lg max-h-60 overflow-auto">{translatedText || itineraryText}</pre>
+                  </div>
+
                   {/* Action Buttons */}
                   <div className="flex gap-3 mt-6 pt-6 border-t border-border/50">
                     <motion.button
