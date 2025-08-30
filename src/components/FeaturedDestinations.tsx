@@ -369,10 +369,19 @@ const FeaturedDestinations = () => {
 
                   {/* Action Buttons */}
                   <div className="flex gap-3">
-                    <motion.button 
+                    <motion.button
                       className="flex-1 btn-primary text-sm"
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
+                      onClick={() => {
+                        const params = new URLSearchParams(window.location.search);
+                        params.set('destination', `${destination.name}, ${destination.country}`);
+                        const url = `${window.location.pathname}?${params.toString()}#itinerary-generator`;
+                        window.history.replaceState(null, '', url);
+                        const el = document.getElementById('itinerary-generator');
+                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }}
+                      aria-label={`Plan trip to ${destination.name}`}
                     >
                       Plan Trip
                     </motion.button>
