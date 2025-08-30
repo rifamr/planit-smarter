@@ -105,6 +105,10 @@ const Hero = () => {
           poster="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&h=1080&fit=crop"
         >
           <source
+            src="https://res.cloudinary.com/dbz1f3ahw/video/upload/v1756549821/173522-849651812_medium_iymzd3.mp4"
+            type="video/mp4"
+          />
+          <source
             src="https://res.cloudinary.com/dbz1f3ahw/video/upload/v1756548149/37088-413229662_medium_dnjhjp.mp4"
             type="video/mp4"
           />
