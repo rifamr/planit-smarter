@@ -28,6 +28,7 @@ const LiveDemo = () => {
   const [itineraryText, setItineraryText] = useState<string>("");
   const [translatedText, setTranslatedText] = useState<string>("");
   const [translateLang, setTranslateLang] = useState<string>("es");
+  const [barsActive, setBarsActive] = useState(false);
 
   const [ref, inView] = useInView({
     threshold: 0.1,
@@ -106,6 +107,14 @@ const LiveDemo = () => {
     e.preventDefault();
     await generateFromRequest(formData);
   };
+
+  useEffect(() => {
+    if (generatedItinerary) {
+      setBarsActive(false);
+      const t = setTimeout(() => setBarsActive(true), 50);
+      return () => clearTimeout(t);
+    }
+  }, [generatedItinerary]);
 
   const toggleFavorite = (activityId: string) => {
     setFavorites(prev => 
@@ -390,6 +399,15 @@ const LiveDemo = () => {
               </motion.button>
             </form>
 
+            {formData.destination && (
+              <div className="mt-4">
+                <div className="text-sm font-medium text-foreground mb-2">
+                  Selected: <span className="text-primary">{formData.destination}</span>
+                </div>
+                <LeafletMap city={formData.destination} height={140} />
+              </div>
+            )}
+
             <div className="mt-4 text-center">
               <Dialog>
                 <DialogTrigger asChild>
@@ -556,9 +574,10 @@ const LiveDemo = () => {
                     {generatedItinerary.days.map((day, index) => (
                       <motion.div
                         key={day.day}
-                        initial={{ opacity: 0, x: -20 }}
+                        initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.1 }}
+                        whileHover={{ scale: 1.01, rotate: 0.25 }}
                         className="border border-border/50 rounded-xl overflow-hidden"
                       >
                         <button
@@ -636,13 +655,22 @@ const LiveDemo = () => {
                                       <span className="text-muted-foreground">Activities:</span>
                                       <span className="font-medium">${Math.round(day.budget.activities)}</span>
                                     </div>
+                                    <div className="w-full bg-muted rounded-full h-2 col-span-2">
+                                      <div className="bg-primary h-2 rounded-full transition-all duration-700" style={{ width: barsActive ? `${Math.min(100, Math.round((day.budget.activities/day.budget.total)*100))}%` : '0%' }} />
+                                    </div>
                                     <div className="flex justify-between">
                                       <span className="text-muted-foreground">Food:</span>
                                       <span className="font-medium">${Math.round(day.budget.food)}</span>
                                     </div>
+                                    <div className="w-full bg-muted rounded-full h-2 col-span-2">
+                                      <div className="bg-accent h-2 rounded-full transition-all duration-700" style={{ width: barsActive ? `${Math.min(100, Math.round((day.budget.food/day.budget.total)*100))}%` : '0%' }} />
+                                    </div>
                                     <div className="flex justify-between">
                                       <span className="text-muted-foreground">Transport:</span>
                                       <span className="font-medium">${Math.round(day.budget.transportation)}</span>
+                                    </div>
+                                    <div className="w-full bg-muted rounded-full h-2 col-span-2">
+                                      <div className="bg-secondary h-2 rounded-full transition-all duration-700" style={{ width: barsActive ? `${Math.min(100, Math.round((day.budget.transportation/day.budget.total)*100))}%` : '0%' }} />
                                     </div>
                                     <div className="flex justify-between font-semibold">
                                       <span>Total:</span>
