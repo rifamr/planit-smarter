@@ -1,9 +1,28 @@
-import { useState, useEffect } from "react";
-import { Globe, Volume2, BookOpen, MessageCircle, Users, Play, ChevronRight, Star } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Globe, Volume2, BookOpen, MessageCircle, Users, Play, ChevronRight } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
+import { toast } from "sonner";
+import { translateLibre } from "@/services/api";
 
 const LanguageAssistance = () => {
   const [activeLanguage, setActiveLanguage] = useState("spanish");
   const [isPlaying, setIsPlaying] = useState(false);
+
+  // Voice Translation state
+  const [voiceOpen, setVoiceOpen] = useState(false);
+  const [inputSpeech, setInputSpeech] = useState("");
+  const [translatedSpeech, setTranslatedSpeech] = useState("");
+  const [targetLang, setTargetLang] = useState("es");
+  const recognitionRef = useRef<any>(null);
+  const [listening, setListening] = useState(false);
+
+  // Chat Assistant state
+  const [chatOpen, setChatOpen] = useState(false);
+  const [messages, setMessages] = useState<{ role: 'user'|'assistant'; text: string }[]>([]);
+  const [chatInput, setChatInput] = useState("");
+
+  // Local Connect state
+  const [connectOpen, setConnectOpen] = useState(false);
 
   const languages = [
     {
@@ -178,7 +197,7 @@ const LanguageAssistance = () => {
       <div className="max-w-7xl mx-auto container-padding">
         {/* Header */}
         <div className="text-center mb-16 animate-fade-in">
-          <div className="inline-flex items-center gap-3 bg-blue-50 text-blue-600 px-6 py-3 rounded-full mb-6">
+          <div className="inline-flex items-center gap-3 bg-primary/10 text-primary px-6 py-3 rounded-full mb-6">
             <Globe className="w-5 h-5" />
             <span className="font-semibold">Language Assistance</span>
           </div>
@@ -275,30 +294,113 @@ const LanguageAssistance = () => {
             </h3>
             
             {features.map((feature, index) => (
-              <div 
-                key={index}
-                className="feature-card animate-slide-in-right"
-                style={{ animationDelay: `${index * 0.2}s` }}
-              >
-                <div className="flex items-start gap-4">
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center ${feature.color}`}>
-                    <feature.icon className="w-6 h-6" />
+              <Dialog key={index} open={
+                (feature.title === 'Voice Translation' && voiceOpen) ||
+                (feature.title === 'Chat Assistant' && chatOpen) ||
+                (feature.title === 'Local Connect' && connectOpen) || undefined
+              } onOpenChange={(open)=>{
+                if (feature.title === 'Voice Translation') setVoiceOpen(open);
+                if (feature.title === 'Chat Assistant') setChatOpen(open);
+                if (feature.title === 'Local Connect') setConnectOpen(open);
+              }}>
+                <DialogTrigger asChild>
+                  <div
+                    className="feature-card animate-slide-in-right cursor-pointer"
+                    style={{ animationDelay: `${index * 0.2}s` }}
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center ${feature.color}`}>
+                        <feature.icon className="w-6 h-6" />
+                      </div>
+
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-foreground mb-2">
+                          {feature.title}
+                        </h4>
+                        <p className="text-muted-foreground mb-3">
+                          {feature.description}
+                        </p>
+                        <span className="text-primary font-medium hover:text-accent transition-colors flex items-center gap-1">
+                          Learn more
+                          <ChevronRight className="w-4 h-4" />
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-foreground mb-2">
-                      {feature.title}
-                    </h4>
-                    <p className="text-muted-foreground mb-3">
-                      {feature.description}
-                    </p>
-                    <button className="text-primary font-medium hover:text-accent transition-colors flex items-center gap-1">
-                      Learn more
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              </div>
+                </DialogTrigger>
+                <DialogContent className="max-w-xl">
+                  <DialogHeader>
+                    <DialogTitle>{feature.title}</DialogTitle>
+                    <DialogDescription>{feature.description}</DialogDescription>
+                  </DialogHeader>
+                  {feature.title === 'Voice Translation' && (
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <label className="text-sm">Target language:</label>
+                        <select value={targetLang} onChange={(e)=>setTargetLang(e.target.value)} className="border border-border rounded px-2 py-1 text-sm">
+                          {[
+                            ['es','Spanish'],['fr','French'],['de','German'],['ja','Japanese'],['hi','Hindi'],['it','Italian'],['pt','Portuguese'],['zh','Chinese']
+                          ].map(([code,label])=> (<option key={code} value={code}>{label}</option>))}
+                        </select>
+                      </div>
+                      <div className="flex gap-2">
+                        <button onClick={listening? stopListening : startListening} className={`px-4 py-2 rounded-lg ${listening? 'bg-destructive text-white' : 'btn-hero'} text-sm`}>
+                          {listening ? 'Stop' : 'Start'} Listening
+                        </button>
+                        <button onClick={async()=>{ setTranslatedSpeech(await translateLibre(inputSpeech || '', targetLang)); }} className="btn-outline-hero text-sm">Translate</button>
+                        <button onClick={()=>speak(translatedSpeech || inputSpeech, targetLang)} className="btn-primary text-sm">Play</button>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <textarea value={inputSpeech} onChange={(e)=>setInputSpeech(e.target.value)} placeholder="Your speech/text" className="w-full h-28 p-3 border border-border rounded-lg bg-background" />
+                        <textarea value={translatedSpeech} onChange={(e)=>setTranslatedSpeech(e.target.value)} placeholder="Translation" className="w-full h-28 p-3 border border-border rounded-lg bg-background" />
+                      </div>
+                    </div>
+                  )}
+
+                  {feature.title === 'Cultural Guide' && (
+                    <div className="space-y-3 text-sm text-muted-foreground">
+                      <p>Explore do's and don'ts, dining etiquette, and greetings. Pick a country in the grid above to preview tips.</p>
+                    </div>
+                  )}
+
+                  {feature.title === 'Chat Assistant' && (
+                    <div className="space-y-3">
+                      <div className="h-48 overflow-auto border border-border rounded p-3 bg-muted/30">
+                        {messages.length === 0 && <div className="text-muted-foreground text-sm">Ask me anything about language, local phrases, or travel etiquette.</div>}
+                        {messages.map((m,i)=> (
+                          <div key={i} className={`mb-2 ${m.role==='user' ? 'text-right' : 'text-left'}`}>
+                            <span className={`inline-block px-3 py-2 rounded-xl text-sm ${m.role==='user' ? 'bg-primary text-white' : 'bg-card border border-border'}`}>{m.text}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex gap-2">
+                        <input value={chatInput} onChange={(e)=>setChatInput(e.target.value)} className="flex-1 border border-border rounded-lg px-3 py-2 bg-background" placeholder="Type your question..." />
+                        <button onClick={sendChat} className="btn-primary">Send</button>
+                      </div>
+                    </div>
+                  )}
+
+                  {feature.title === 'Local Connect' && (
+                    <div className="space-y-3">
+                      {[
+                        { name: 'Ana (Madrid)', langs: 'ES/EN', rating: 4.9 },
+                        { name: 'Pierre (Paris)', langs: 'FR/EN', rating: 4.8 },
+                        { name: 'Yuki (Tokyo)', langs: 'JA/EN', rating: 4.9 }
+                      ].map((g, i) => (
+                        <div key={i} className="flex items-center justify-between p-3 border border-border rounded-lg">
+                          <div>
+                            <div className="font-medium">{g.name}</div>
+                            <div className="text-xs text-muted-foreground">Languages: {g.langs} • Rating: {g.rating}</div>
+                          </div>
+                          <button className="btn-outline-hero text-sm" onClick={()=>toast.success('Request sent!')}>
+                            Connect
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </DialogContent>
+              </Dialog>
             ))}
 
             {/* Demo CTA */}
@@ -307,7 +409,7 @@ const LanguageAssistance = () => {
               <p className="text-white/90 mb-4">
                 Test our real-time translation with your voice right now.
               </p>
-              <button className="bg-white text-primary font-semibold px-6 py-3 rounded-xl hover:bg-gray-100 transition-colors flex items-center gap-2">
+              <button onClick={()=>setVoiceOpen(true)} className="bg-white text-primary font-semibold px-6 py-3 rounded-xl hover:bg-gray-100 transition-colors flex items-center gap-2">
                 <Volume2 className="w-4 h-4" />
                 Start Voice Demo
               </button>
