@@ -6,6 +6,7 @@
 /* PlanIt Smarter - Premium Travel Design System */
 
 @layer base {
+  html, body, #root { overflow-x: hidden; width: 100%; }
   :root {
     /* Core Background & Text */
     --background: 0 0% 100%;
