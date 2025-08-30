@@ -30,36 +30,14 @@ const LazyImage = ({
 }: LazyImageProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
-  const [isInView, setIsInView] = useState(false);
+  const [isInView, setIsInView] = useState(true);
   const imgRef = useRef<HTMLImageElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Intersection Observer for lazy loading with early prefetch
+  // Load immediately (lazy loading disabled)
   useEffect(() => {
-    if (priority) {
-      setIsInView(true);
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsInView(true);
-          observer.disconnect();
-        }
-      },
-      {
-        rootMargin: '300px',
-        threshold: 0.1
-      }
-    );
-
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, [priority]);
+    setIsInView(true);
+  }, []);
 
   const handleImageLoad = () => {
     setImageLoaded(true);
@@ -128,7 +106,7 @@ const LazyImage = ({
           srcSet={autoSrcSet}
           sizes={computedSizes}
           alt={alt}
-          loading={loading}
+          loading="eager"
           decoding="async"
           fetchPriority={priority ? 'high' : 'auto'}
           className={`w-full h-full object-cover transition-opacity duration-500 ${
