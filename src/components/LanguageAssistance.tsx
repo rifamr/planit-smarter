@@ -6,6 +6,7 @@ import { translateLibre } from "@/services/api";
 
 const LanguageAssistance = () => {
   const [activeLanguage, setActiveLanguage] = useState("spanish");
+  const langCodeMap: Record<string,string> = { spanish:'es', french:'fr', japanese:'ja', italian:'it', mandarin:'zh', portuguese:'pt' };
   const [isPlaying, setIsPlaying] = useState(false);
 
   // Voice Translation state
@@ -280,10 +281,14 @@ const LanguageAssistance = () => {
           {languages.map((language, index) => (
             <button
               key={language.id}
-              onClick={() => setActiveLanguage(language.id)}
+              onClick={() => {
+                setActiveLanguage(language.id);
+                const code = langCodeMap[language.id] || 'en';
+                window.dispatchEvent(new CustomEvent('translate-itinerary', { detail: { targetLang: code } }));
+              }}
               className={`feature-card text-center transition-all duration-300 ${
-                activeLanguage === language.id 
-                  ? 'ring-2 ring-primary shadow-lg scale-105' 
+                activeLanguage === language.id
+                  ? 'ring-2 ring-primary shadow-lg scale-105'
                   : 'hover:shadow-md hover:scale-102'
               }`}
               style={{ animationDelay: `${index * 0.1}s` }}

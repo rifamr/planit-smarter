@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import LazyImage from "@/components/ui/LazyImage";
 import { useInView } from "react-intersection-observer";
 import { ChevronLeft, ChevronRight, Star, Quote, Play, Pause, MapPin } from "lucide-react";
 
@@ -232,11 +233,13 @@ const Testimonials = () => {
               >
                 {/* Image Side */}
                 <div className="relative overflow-hidden">
-                  <img
+                  <LazyImage
                     src={currentTestimonial.image}
                     alt={currentTestimonial.trip}
                     className="w-full h-full object-cover"
                     loading="lazy"
+                    fallback="/placeholder.svg"
+                    sizes="(max-width: 1024px) 100vw, 50vw"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
                   
@@ -283,11 +286,13 @@ const Testimonials = () => {
                     </div>
                     
                     <div className="flex items-center gap-4">
-                      <img
+                      <LazyImage
                         src={currentTestimonial.avatar}
                         alt={currentTestimonial.name}
                         className="w-16 h-16 rounded-full object-cover border-2 border-primary/20"
                         loading="lazy"
+                        fallback="/placeholder.svg"
+                        sizes="64px"
                       />
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
@@ -374,11 +379,13 @@ const Testimonials = () => {
               whileHover={{ scale: index === currentIndex ? 1.05 : 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              <img
+              <LazyImage
                 src={testimonial.avatar}
                 alt={testimonial.name}
                 className="w-16 h-16 object-cover"
                 loading="lazy"
+                fallback="/placeholder.svg"
+                sizes="64px"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
               <div className="absolute bottom-1 left-1 right-1 text-center">

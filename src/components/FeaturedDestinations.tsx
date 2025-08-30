@@ -5,6 +5,7 @@ import { MapPin, Star, Heart, Clock, Camera, Utensils, Mountain, Users, Filter, 
 import { getFeaturedDestinations } from "@/services/api";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import LazyImage from "@/components/ui/LazyImage";
 
 interface Destination {
   id: string;
@@ -293,11 +294,13 @@ const FeaturedDestinations = () => {
                   >
                 {/* Image Container */}
                 <div className="relative h-64 overflow-hidden">
-                  <img
+                  <LazyImage
                     src={destination.image}
                     alt={`${destination.name}, ${destination.country}`}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     loading="lazy"
+                    fallback="/placeholder.svg"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   />
                   
                   {/* Overlay Content */}
@@ -418,9 +421,12 @@ const FeaturedDestinations = () => {
                           checkout,
                           travelers: 2,
                           budget: 'medium',
-                          sustainability: destination.sustainable || false
-                        };
+                          sustainability: destination.sustainable || false,
+                          interests: [...new Set([...(destination.category||[]), ...(destination.highlights||[])])].slice(0,5)
+                        } as any;
                         window.dispatchEvent(new CustomEvent('ai-plan-trip', { detail }));
+                        const it = document.getElementById('itinerary-generator');
+                        if (it) it.scrollIntoView({ behavior: 'smooth', block: 'start' });
                       }}
                       aria-label={`Plan trip to ${destination.name}`}
                     >
@@ -447,11 +453,43 @@ const FeaturedDestinations = () => {
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4">
-                    <img src={destination.image} alt={`${destination.name} preview`} className="w-full h-56 object-cover rounded-xl" loading="lazy" />
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <LazyImage src={destination.image} alt={`${destination.name} preview`} className="w-full h-40 object-cover rounded-xl" loading="lazy" fallback="/placeholder.svg" sizes="(max-width: 640px) 100vw, 33vw" />
+                      <LazyImage src={`${destination.image}&sat=0&auto=format&fit=crop`} alt={`${destination.name} view 2`} className="w-full h-40 object-cover rounded-xl" loading="lazy" fallback="/placeholder.svg" sizes="(max-width: 640px) 100vw, 33vw" />
+                      <LazyImage src={`${destination.image}&blur=0&auto=format&fit=crop`} alt={`${destination.name} view 3`} className="w-full h-40 object-cover rounded-xl" loading="lazy" fallback="/placeholder.svg" sizes="(max-width: 640px) 100vw, 33vw" />
+                    </div>
                     <p className="text-sm text-muted-foreground">{destination.description}</p>
-                    <div className="flex flex-wrap gap-2">
-                      {destination.highlights.slice(0,5).map((h, i) => (
-                        <span key={i} className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">{h}</span>
+                    <div className="space-y-2">
+                      {destination.highlights.map((h, i) => (
+                        <div key={i} className="flex items-center justify-between p-2 bg-muted/30 rounded-lg">
+                          <span className="text-sm text-foreground">{h}</span>
+                          <button
+                            className="btn-outline-hero text-xs"
+                            onClick={() => {
+                              const today = new Date();
+                              const toISO = (d: Date) => d.toISOString().split('T')[0];
+                              const checkin = toISO(today);
+                              const out = new Date(today);
+                              out.setDate(out.getDate() + 4);
+                              const checkout = toISO(out);
+                              const detail: any = {
+                                destination: `${destination.name}, ${destination.country}`,
+                                checkin,
+                                checkout,
+                                travelers: 2,
+                                budget: 'medium',
+                                sustainability: destination.sustainable || false,
+                                interests: [h, ...(destination.category||[])].slice(0,5)
+                              };
+                              window.dispatchEvent(new CustomEvent('ai-plan-trip', { detail }));
+                              const it = document.getElementById('itinerary-generator');
+                              if (it) it.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }}
+                            aria-label={`Plan trip for ${destination.name} - ${h}`}
+                          >
+                            Plan Trip
+                          </button>
+                        </div>
                       ))}
                     </div>
                   </div>
