@@ -54,6 +54,7 @@ const Index = () => {
       <div id="features">
         <Features />
       </div>
+      <TripCompanions />
       <div id="sustainability-mode">
         <SustainabilityMode />
       </div>
