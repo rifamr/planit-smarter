@@ -134,7 +134,8 @@ const MoodBoard = () => {
   const empty = useMemo(() => items.length === 0, [items]);
 
   return (
-    <section id="mood-board" className="section-padding container-padding bg-section-alt">
+    <TooltipProvider>
+      <section id="mood-board" className="section-padding container-padding bg-section-alt">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-3xl font-bold">Trip Mood Board</h2>
@@ -234,6 +235,7 @@ const MoodBoard = () => {
         </DragDropContext>
       </div>
     </section>
+    </TooltipProvider>
   );
 };
 
