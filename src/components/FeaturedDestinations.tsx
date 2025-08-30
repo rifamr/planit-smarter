@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { MapPin, Star, Heart, Clock, Camera, Utensils, Mountain, Users, Filter, Loader2 } from "lucide-react";
 import { getFeaturedDestinations } from "@/services/api";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 
 interface Destination {
   id: string;
@@ -252,13 +253,14 @@ const FeaturedDestinations = () => {
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
             {filteredDestinations.map((destination, index) => (
-              <motion.div
-                key={destination.id}
-                variants={itemVariants}
-                className="destination-card group"
-                whileHover={{ scale: 1.02, y: -8 }}
-                transition={{ duration: 0.3 }}
-              >
+              <Dialog key={destination.id}>
+                <DialogTrigger asChild>
+                  <motion.div
+                    variants={itemVariants}
+                    className="destination-card group cursor-pointer"
+                    whileHover={{ scale: 1.02, y: -8 }}
+                    transition={{ duration: 0.3 }}
+                  >
                 {/* Image Container */}
                 <div className="relative h-64 overflow-hidden">
                   <img
@@ -394,7 +396,28 @@ const FeaturedDestinations = () => {
                     </motion.button>
                   </div>
                 </div>
-              </motion.div>
+                  </motion.div>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2">
+                      {destination.name} <span className="text-muted-foreground text-sm">{destination.country}</span>
+                    </DialogTitle>
+                    <DialogDescription>
+                      Explore highlights, sample photos, and trip details. Booking coming soon.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <img src={destination.image} alt={`${destination.name} preview`} className="w-full h-56 object-cover rounded-xl" loading="lazy" />
+                    <p className="text-sm text-muted-foreground">{destination.description}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {destination.highlights.slice(0,5).map((h, i) => (
+                        <span key={i} className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">{h}</span>
+                      ))}
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
             ))}
           </motion.div>
         )}
