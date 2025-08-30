@@ -192,6 +192,61 @@ const LanguageAssistance = () => {
     setTimeout(() => setIsPlaying(false), 1500);
   };
 
+  const startListening = () => {
+    const SR: any = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SR) {
+      toast.error('Speech Recognition not supported on this device');
+      return;
+    }
+    const recog = new SR();
+    recog.lang = 'en-US';
+    recog.interimResults = false;
+    recog.maxAlternatives = 1;
+    recog.onresult = async (e: any) => {
+      const text = e.results[0][0].transcript;
+      setInputSpeech(text);
+      if (targetLang) {
+        try {
+          const out = await translateLibre(text, targetLang);
+          setTranslatedSpeech(out);
+        } catch {}
+      }
+    };
+    recog.onerror = () => setListening(false);
+    recog.onend = () => setListening(false);
+    recognitionRef.current = recog;
+    setListening(true);
+    recog.start();
+  };
+
+  const stopListening = () => {
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch {}
+    }
+    setListening(false);
+  };
+
+  const speak = (text: string, lang: string) => {
+    const synth: any = (window as any).speechSynthesis;
+    if (!synth) {
+      toast.error('Speech Synthesis not supported');
+      return;
+    }
+    const utter = new SpeechSynthesisUtterance(text || '');
+    utter.lang = lang || 'en-US';
+    synth.cancel();
+    synth.speak(utter);
+  };
+
+  const sendChat = async () => {
+    const content = chatInput.trim();
+    if (!content) return;
+    setMessages(prev => [...prev, { role: 'user', text: content }]);
+    setChatInput("");
+    const reply = `Here are some tips for: ${content}. Consider learning basic greetings and carry an offline phrasebook.`;
+    setTimeout(() => setMessages(prev => [...prev, { role: 'assistant', text: reply }]), 300);
+  };
+
   return (
     <section className="section-padding bg-section-alt">
       <div className="max-w-7xl mx-auto container-padding">
