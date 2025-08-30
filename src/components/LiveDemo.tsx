@@ -859,6 +859,30 @@ const LiveDemo = () => {
                       Book Now
                     </motion.button>
                   </div>
+
+                  {/* Tailored Guide */}
+                  <div className="mt-8 p-4 border border-border/50 rounded-xl">
+                    <h4 className="font-semibold mb-2">Your Tailored Guide</h4>
+                    <p className="text-sm text-muted-foreground mb-4">Curated tips based on your interests and eco preferences.</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="bg-muted/30 rounded-lg p-3">
+                        <div className="font-medium mb-1">Eco Transport</div>
+                        <p className="text-xs text-muted-foreground">Prefer metro, trams, and walking routes near {generatedItinerary.destination}. Consider city passes for savings.</p>
+                      </div>
+                      <div className="bg-muted/30 rounded-lg p-3">
+                        <div className="font-medium mb-1">Green Stays</div>
+                        <p className="text-xs text-muted-foreground">Look for eco labels (Green Key/LEED). Choose central areas to reduce transfers.</p>
+                      </div>
+                      <div className="bg-muted/30 rounded-lg p-3">
+                        <div className="font-medium mb-1">Local Experiences</div>
+                        <p className="text-xs text-muted-foreground">Book small-group activities aligned with {(formData.interests||[]).slice(0,2).join(', ') || 'your interests'}; support community-led tours.</p>
+                      </div>
+                      <div className="bg-muted/30 rounded-lg p-3">
+                        <div className="font-medium mb-1">Carbon Offset</div>
+                        <p className="text-xs text-muted-foreground">Offset flights via verified projects and pack light to cut emissions.</p>
+                      </div>
+                    </div>
+                  </div>
                 </motion.div>
               ) : (
                 <motion.div
