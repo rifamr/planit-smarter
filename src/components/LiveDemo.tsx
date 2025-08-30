@@ -176,6 +176,35 @@ const LiveDemo = () => {
     }
   };
 
+  const translateCurrentItinerary = async (lang: string) => {
+    if (!generatedItinerary) return;
+    setTranslating(true);
+    setTranslateError(null);
+    try {
+      const blocks = new Set<string>();
+      blocks.add(`Destination: ${generatedItinerary.destination}`);
+      generatedItinerary.days.forEach((d) => {
+        blocks.add(d.title);
+        blocks.add(d.description);
+        d.activities.forEach((a) => blocks.add(a.name));
+      });
+      const arr = Array.from(blocks);
+      const results = await Promise.allSettled(arr.map((txt) => translateLibre(txt, lang)));
+      const map: Record<string,string> = {};
+      results.forEach((res, i) => {
+        if (res.status === 'fulfilled') map[arr[i]] = res.value;
+      });
+      setTmap(map);
+      if (itineraryText) {
+        try { setTranslatedText(await translateLibre(itineraryText, lang)); } catch {}
+      }
+    } catch (e) {
+      setTranslateError('Translation temporarily unavailable.');
+    } finally {
+      setTranslating(false);
+    }
+  };
+
   const containerVariants = {
     hidden: { opacity: 0, y: 50 },
     visible: {
