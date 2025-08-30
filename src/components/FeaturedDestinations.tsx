@@ -58,7 +58,7 @@ const FeaturedDestinations = () => {
     { id: "Budget", label: "Budget-Friendly", icon: Users }
   ];
 
-  const destinations: Destination[] = [
+  const mockDestinations: Destination[] = [
     {
       id: "1",
       name: "Santorini",
