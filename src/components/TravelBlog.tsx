@@ -384,21 +384,17 @@ const TravelBlog = () => {
             delivered straight to your inbox from our community of experts.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-            <input
-              type="email"
-              placeholder="Enter your email address"
-              className="flex-1 px-4 py-3 rounded-xl border border-border bg-background focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-            />
-            <button className="btn-primary whitespace-nowrap">
-              Subscribe
+          <div className="flex justify-center">
+            <a
+              href="https://www.instagram.com/unleashwithsumit?igsh=OTY3YW4xYTVjaXZ2"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary whitespace-nowrap inline-flex items-center"
+            >
+              Join Community
               <ArrowRight className="w-4 h-4 ml-2" />
-            </button>
+            </a>
           </div>
-          
-          <p className="text-xs text-muted-foreground mt-4">
-            Unsubscribe anytime. We respect your privacy.
-          </p>
         </div>
       </div>
     </section>
