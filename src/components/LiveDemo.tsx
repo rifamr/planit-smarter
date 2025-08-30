@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { MapPin, Calendar, DollarSign, Leaf, Sparkles, Users, Clock, Star, Download, Share2, Heart, Navigation, Loader2, ChevronRight, ChevronDown } from "lucide-react";
 import { generateItinerary, type TripRequest, type TripItinerary, getCurrencyRates, getWeatherForecast } from "@/services/api";
+import MapView from "@/components/MapView";
 
 const LiveDemo = () => {
   const [formData, setFormData] = useState<TripRequest>({
@@ -26,6 +27,15 @@ const LiveDemo = () => {
     triggerOnce: true
   });
 
+  // Prefill destination from URL query (e.g., ?destination=Tokyo)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const dest = params.get('destination');
+    if (dest) {
+      setFormData(prev => ({ ...prev, destination: dest }));
+    }
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -38,12 +48,20 @@ const LiveDemo = () => {
     setError(null);
     
     try {
-      const [itinerary, rates] = await Promise.all([
+      const [itinerary, rates, forecast] = await Promise.all([
         generateItinerary(formData),
-        getCurrencyRates('USD')
+        getCurrencyRates('USD'),
+        getWeatherForecast(formData.destination)
       ]);
-      
-      setGeneratedItinerary(itinerary);
+
+      const merged: TripItinerary = {
+        ...itinerary,
+        days: itinerary.days.map((d, i) => ({
+          ...d,
+          weather: forecast[i] ? forecast[i] : d.weather,
+        }))
+      };
+      setGeneratedItinerary(merged);
       setCurrencyRates(rates);
     } catch (err) {
       setError('Failed to generate itinerary. Please try again.');
@@ -368,6 +386,14 @@ const LiveDemo = () => {
                           ${Math.round(generatedItinerary.total_budget)}
                         </div>
                         <div className="text-xs text-muted-foreground">Total Budget</div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {currencyRates.EUR && (
+                            <span className="mr-2">€{Math.round(generatedItinerary.total_budget * currencyRates.EUR)}</span>
+                          )}
+                          {currencyRates.JPY && (
+                            <span>¥{Math.round(generatedItinerary.total_budget * currencyRates.JPY)}</span>
+                          )}
+                        </div>
                       </div>
                       <div className="text-center">
                         <div className="text-lg font-bold text-foreground flex items-center justify-center gap-1">
@@ -388,6 +414,10 @@ const LiveDemo = () => {
                         </div>
                         <div className="text-xs text-muted-foreground">CO₂ Offset</div>
                       </div>
+                    </div>
+
+                    <div className="mt-4">
+                      <MapView activities={generatedItinerary.days.flatMap(d => d.activities)} height={280} />
                     </div>
                   </div>
 
