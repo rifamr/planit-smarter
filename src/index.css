@@ -545,12 +545,13 @@
   .btn-hero-secondary,
   .btn-outline-hero,
   .btn-primary {
-    @apply shadow-none transform-none;
+    box-shadow: none !important;
+    transform: none !important;
   }
-  
+
   .feature-card,
   .feature-card-gradient,
   .feature-card-premium {
-    @apply shadow-none;
+    box-shadow: none !important;
   }
 }
