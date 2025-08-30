@@ -1,18 +1,16 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Sparkles, Leaf, Search, MapPin, Calendar, DollarSign, Users, Star, Play, Volume2, VolumeX } from "lucide-react";
+import { ArrowRight, Sparkles, Leaf, Search, MapPin, Calendar, DollarSign, Users, Star, Play } from "lucide-react";
 
 const Hero = () => {
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
-  const [searchForm, setSearchForm] = useState({
-    destination: "",
-    checkin: "",
-    checkout: "",
-    travelers: 2,
-    budget: "medium",
-    sustainability: false
-  });
+  const [heroDestination, setHeroDestination] = useState("");
+  const [heroCheckIn, setHeroCheckIn] = useState("");
+  const [heroCheckOut, setHeroCheckOut] = useState("");
+  const [heroTravelers, setHeroTravelers] = useState<number>(2);
+  const [heroBudget, setHeroBudget] = useState<string>("medium");
+  const [heroEcoMode, setHeroEcoMode] = useState<boolean>(false);
 
   const popularDestinations = [
     "Tokyo, Japan", "Paris, France", "New York, USA", "London, UK", 
@@ -28,16 +26,19 @@ const Hero = () => {
   };
 
   const handlePlanTrip = () => {
-    if (searchForm.destination) {
-      scrollToSection('itinerary-generator');
-    } else {
-      // Highlight destination field
-      const destinationInput = document.querySelector('input[placeholder*="destinations"]') as HTMLInputElement;
-      if (destinationInput) {
-        destinationInput.focus();
-        destinationInput.style.animation = 'pulse 0.5s ease-in-out 2';
-      }
-    }
+    const detail = {
+      destination: heroDestination,
+      checkin: heroCheckIn,
+      checkout: heroCheckOut,
+      travelers: Number(heroTravelers) || 2,
+      budget: heroBudget || 'medium',
+      sustainability: !!heroEcoMode
+    };
+
+    window.dispatchEvent(new CustomEvent('ai-plan-trip', { detail }));
+
+    const el = document.getElementById('itinerary-generator');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const handleExploreEco = () => {
@@ -94,6 +95,8 @@ const Hero = () => {
           muted={isMuted}
           loop
           playsInline
+          preload="metadata"
+          aria-hidden="true"
           className={`w-full h-full object-cover transition-opacity duration-1000 ${
             isVideoLoaded ? 'opacity-100' : 'opacity-0'
           }`}
@@ -101,12 +104,20 @@ const Hero = () => {
           onError={() => setIsVideoLoaded(false)}
           poster="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&h=1080&fit=crop"
         >
-          <source 
-            src="https://player.vimeo.com/external/394498002.hd.mp4?s=5dcf97b3d92a40dcf7b1de17212d6c84726e6ca7&profile_id=175" 
-            type="video/mp4" 
+          <source
+            src="https://res.cloudinary.com/dbz1f3ahw/video/upload/v1756549821/173522-849651812_medium_iymzd3.mp4"
+            type="video/mp4"
           />
-          <source 
-            src="https://cdn.pixabay.com/vimeo/394498002/travel-27818.mp4?width=1920&hash=4e89c4f8b3a4b5bc8c5f7e9d1a2b3c4d5e6f7g8h"
+          <source
+            src="https://res.cloudinary.com/dbz1f3ahw/video/upload/v1756548149/37088-413229662_medium_dnjhjp.mp4"
+            type="video/mp4"
+          />
+          <source
+            src="https://player.vimeo.com/external/394498002.hd.mp4?s=5dcf97b3d92a40dcf7b1de17212d6c84726e6ca7&profile_id=175"
+            type="video/mp4"
+          />
+          <source
+            src="https://videos.pexels.com/video-files/33645089/14297758_640_360_24fps.mp4"
             type="video/mp4"
           />
         </video>
@@ -126,18 +137,6 @@ const Hero = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20"></div>
       </div>
 
-      {/* Video Controls */}
-      <button
-        onClick={() => setIsMuted(!isMuted)}
-        className="absolute top-6 right-20 z-30 w-12 h-12 bg-white/20 backdrop-blur-md border border-white/30 rounded-full flex items-center justify-center hover:bg-white/30 transition-all duration-300"
-        aria-label={isMuted ? 'Unmute video' : 'Mute video'}
-      >
-        {isMuted ? (
-          <VolumeX className="w-5 h-5 text-white" />
-        ) : (
-          <Volume2 className="w-5 h-5 text-white" />
-        )}
-      </button>
 
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden z-10">
@@ -256,8 +255,8 @@ const Hero = () => {
                         type="text"
                         list="destinations"
                         placeholder="Search destinations..."
-                        value={searchForm.destination}
-                        onChange={(e) => setSearchForm({...searchForm, destination: e.target.value})}
+                        value={heroDestination}
+                        onChange={(e) => setHeroDestination(e.target.value)}
                         className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-gray-900"
                         required
                       />
@@ -278,8 +277,8 @@ const Hero = () => {
                       <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                       <input
                         type="date"
-                        value={searchForm.checkin}
-                        onChange={(e) => setSearchForm({...searchForm, checkin: e.target.value})}
+                        value={heroCheckIn}
+                        onChange={(e) => setHeroCheckIn(e.target.value)}
                         className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-gray-900"
                         min={new Date().toISOString().split('T')[0]}
                       />
@@ -295,10 +294,10 @@ const Hero = () => {
                       <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                       <input
                         type="date"
-                        value={searchForm.checkout}
-                        onChange={(e) => setSearchForm({...searchForm, checkout: e.target.value})}
+                        value={heroCheckOut}
+                        onChange={(e) => setHeroCheckOut(e.target.value)}
                         className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-gray-900"
-                        min={searchForm.checkin || new Date().toISOString().split('T')[0]}
+                        min={heroCheckIn || new Date().toISOString().split('T')[0]}
                       />
                     </div>
                   </div>
@@ -313,8 +312,11 @@ const Hero = () => {
                     <div className="relative">
                       <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                       <select
-                        value={searchForm.travelers}
-                        onChange={(e) => setSearchForm({...searchForm, travelers: Number(e.target.value)})}
+                        value={heroTravelers}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          setHeroTravelers(v === '5+' ? 5 : Number(v));
+                        }}
                         className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all appearance-none text-gray-900"
                       >
                         <option value={1}>1 Traveler</option>
@@ -334,8 +336,8 @@ const Hero = () => {
                     <div className="relative">
                       <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                       <select
-                        value={searchForm.budget}
-                        onChange={(e) => setSearchForm({...searchForm, budget: e.target.value})}
+                        value={heroBudget}
+                        onChange={(e) => setHeroBudget(e.target.value)}
                         className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all appearance-none text-gray-900"
                       >
                         <option value="budget">Budget ($50-100/day)</option>
@@ -350,8 +352,8 @@ const Hero = () => {
                     <label className="flex items-center gap-3 cursor-pointer w-full">
                       <input
                         type="checkbox"
-                        checked={searchForm.sustainability}
-                        onChange={(e) => setSearchForm({...searchForm, sustainability: e.target.checked})}
+                        checked={heroEcoMode}
+                        onChange={(e) => setHeroEcoMode(e.target.checked)}
                         className="w-5 h-5 text-secondary rounded border-gray-300 focus:ring-secondary"
                       />
                       <div className="flex items-center gap-2">
@@ -370,6 +372,7 @@ const Hero = () => {
                   className="w-full btn-hero text-lg py-4 group"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
+                  aria-label="Plan my trip"
                 >
                   <Sparkles className="w-6 h-6 mr-3 group-hover:animate-spin" />
                   Plan My Dream Trip

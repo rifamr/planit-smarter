@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, MapPin, Sparkles, Globe, Leaf, User, ChevronDown } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -168,8 +169,9 @@ const Navigation = () => {
               ))}
             </div>
 
-            {/* CTA Button */}
+            {/* CTA Buttons + Theme */}
             <div className="hidden lg:flex items-center gap-4">
+              <ThemeToggle inline />
               <motion.button
                 className={`px-6 py-2 rounded-lg font-medium transition-all duration-300 ${
                   isScrolled 
@@ -305,6 +307,9 @@ const Navigation = () => {
                 </div>
 
                 <div className="flex flex-col gap-3 mt-6 pt-6 border-t border-border/50">
+                  <div className="flex justify-end mb-2">
+                    <ThemeToggle inline />
+                  </div>
                   <motion.button
                     className="w-full py-3 text-center font-medium text-muted-foreground hover:text-primary transition-colors rounded-xl hover:bg-primary/10"
                     onClick={() => scrollToSection('pricing')}
@@ -314,7 +319,7 @@ const Navigation = () => {
                   >
                     Sign In
                   </motion.button>
-                  
+
                   <motion.button
                     className="w-full btn-primary"
                     onClick={() => scrollToSection('itinerary-generator')}

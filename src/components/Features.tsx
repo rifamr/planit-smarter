@@ -1,4 +1,5 @@
 import { Users, Leaf, Globe, Zap, Heart, Shield } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 
 const Features = () => {
   const features = [
@@ -55,32 +56,51 @@ const Features = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
-            <div 
-              key={index}
-              className="feature-card group animate-slide-up"
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
-              <div className={`inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-r ${feature.gradient} mb-6 group-hover:scale-110 transition-transform duration-300`}>
-                <feature.icon className="w-7 h-7 text-white" />
-              </div>
-              
-              <h3 className="text-xl font-semibold text-foreground mb-4 group-hover:text-primary transition-colors">
-                {feature.title}
-              </h3>
-              
-              <p className="text-muted-foreground leading-relaxed">
-                {feature.description}
-              </p>
-              
-              <div className="mt-6 pt-4 border-t border-border/50">
-                <button className="text-primary font-medium hover:text-accent transition-colors flex items-center gap-2 group/btn">
-                  Learn more 
-                  <svg className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-              </div>
-            </div>
+            <Dialog key={index}>
+              <DialogTrigger asChild>
+                <div
+                  className="feature-card group animate-slide-up cursor-pointer"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  <div className={`inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-r ${feature.gradient} mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                    <feature.icon className="w-7 h-7 text-white" />
+                  </div>
+
+                  <h3 className="text-xl font-semibold text-foreground mb-4 group-hover:text-primary transition-colors">
+                    {feature.title}
+                  </h3>
+
+                  <p className="text-muted-foreground leading-relaxed">
+                    {feature.description}
+                  </p>
+
+                  <div className="mt-6 pt-4 border-t border-border/50">
+                    <button className="text-primary font-medium hover:text-accent transition-colors flex items-center gap-2 group/btn">
+                      Learn more
+                      <svg className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>{feature.title}</DialogTitle>
+                  <DialogDescription>
+                    {feature.description}
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-3 text-sm text-muted-foreground">
+                  <p>Discover how {feature.title.toLowerCase()} enhances your planning with real examples, tips, and best practices.</p>
+                  <ul className="list-disc pl-5">
+                    <li>Practical use cases and workflows</li>
+                    <li>Pro traveler tips and caveats</li>
+                    <li>Upcoming enhancements</li>
+                  </ul>
+                </div>
+              </DialogContent>
+            </Dialog>
           ))}
         </div>
 

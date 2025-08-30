@@ -343,7 +343,7 @@ export const initAccessibility = () => {
   }
 
   // Run accessibility audit in development
-  if (process.env.NODE_ENV === 'development') {
+  if ((import.meta as any).env?.MODE === 'development') {
     setTimeout(() => {
       accessibilityTesting.runBasicAudit();
     }, 2000);

@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { MapPin, Star, Heart, Clock, Camera, Utensils, Mountain, Users, Filter, Loader2 } from "lucide-react";
 import { getFeaturedDestinations } from "@/services/api";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 interface Destination {
   id: string;
@@ -178,6 +180,23 @@ const FeaturedDestinations = () => {
     }
   };
 
+  const AnimatedNumber: React.FC<{ value: string; suffix?: string }> = ({ value, suffix = '' }) => {
+    const [display, setDisplay] = useState(0);
+    useEffect(() => {
+      const num = parseInt(value);
+      if (isNaN(num)) return;
+      const duration = 1200;
+      const startTime = performance.now();
+      const tick = (now: number) => {
+        const p = Math.min(1, (now - startTime) / duration);
+        setDisplay(Math.floor(p * num));
+        if (p < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }, [value]);
+    return <span>{display}{suffix}</span>;
+  };
+
   return (
     <section className="section-padding bg-section" ref={ref}>
       <div className="max-w-7xl mx-auto container-padding">
@@ -252,13 +271,26 @@ const FeaturedDestinations = () => {
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
             {filteredDestinations.map((destination, index) => (
-              <motion.div
-                key={destination.id}
-                variants={itemVariants}
-                className="destination-card group"
-                whileHover={{ scale: 1.02, y: -8 }}
-                transition={{ duration: 0.3 }}
-              >
+              <Dialog key={destination.id}>
+                <DialogTrigger asChild>
+                  <motion.div
+                    variants={itemVariants}
+                    className={`destination-card group cursor-pointer will-change-transform ${destination.sustainable ? 'ring-0 group-hover:ring-2 group-hover:ring-green-300' : ''}`}
+                    whileHover={{ scale: 1.02, y: -8 }}
+                    transition={{ duration: 0.3 }}
+                    onMouseMove={(e) => {
+                      const el = e.currentTarget as HTMLDivElement;
+                      const r = el.getBoundingClientRect();
+                      const x = e.clientX - r.left;
+                      const y = e.clientY - r.top;
+                      const rotY = ((x - r.width / 2) / (r.width / 2)) * 6;
+                      const rotX = (-(y - r.height / 2) / (r.height / 2)) * 6;
+                      el.style.transform = `perspective(900px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale(1.03)`;
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLDivElement).style.transform = '';
+                    }}
+                  >
                 {/* Image Container */}
                 <div className="relative h-64 overflow-hidden">
                   <img
@@ -369,10 +401,28 @@ const FeaturedDestinations = () => {
 
                   {/* Action Buttons */}
                   <div className="flex gap-3">
-                    <motion.button 
+                    <motion.button
                       className="flex-1 btn-primary text-sm"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                      whileHover={{ scale: 1.04 }}
+                      whileTap={{ scale: 0.95, y: -2 }}
+                      onClick={() => {
+                        const today = new Date();
+                        const toISO = (d: Date) => d.toISOString().split('T')[0];
+                        const checkin = toISO(today);
+                        const out = new Date(today);
+                        out.setDate(out.getDate() + 3);
+                        const checkout = toISO(out);
+                        const detail = {
+                          destination: `${destination.name}, ${destination.country}`,
+                          checkin,
+                          checkout,
+                          travelers: 2,
+                          budget: 'medium',
+                          sustainability: destination.sustainable || false
+                        };
+                        window.dispatchEvent(new CustomEvent('ai-plan-trip', { detail }));
+                      }}
+                      aria-label={`Plan trip to ${destination.name}`}
                     >
                       Plan Trip
                     </motion.button>
@@ -385,7 +435,28 @@ const FeaturedDestinations = () => {
                     </motion.button>
                   </div>
                 </div>
-              </motion.div>
+                  </motion.div>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2">
+                      {destination.name} <span className="text-muted-foreground text-sm">{destination.country}</span>
+                    </DialogTitle>
+                    <DialogDescription>
+                      Explore highlights, sample photos, and trip details. Booking coming soon.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <img src={destination.image} alt={`${destination.name} preview`} className="w-full h-56 object-cover rounded-xl" loading="lazy" />
+                    <p className="text-sm text-muted-foreground">{destination.description}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {destination.highlights.slice(0,5).map((h, i) => (
+                        <span key={i} className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">{h}</span>
+                      ))}
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
             ))}
           </motion.div>
         )}
@@ -397,10 +468,17 @@ const FeaturedDestinations = () => {
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ delay: 0.5, duration: 0.6 }}
         >
-          <motion.button 
+          <motion.button
             className="btn-outline-hero"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            onClick={() => {
+              setDestinations(prev => [
+                ...prev,
+                ...mockDestinations.map(d => ({ ...d, id: d.id + "-more-" + Math.random().toString(36).slice(2,6) }))
+              ]);
+              toast.success('Loaded more destinations');
+            }}
           >
             <Filter className="w-5 h-5 mr-2" />
             Discover More Destinations
@@ -415,19 +493,19 @@ const FeaturedDestinations = () => {
           className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-20 pt-16 border-t border-border/50"
         >
           {[
-            { number: "180+", label: "Destinations" },
-            { number: "95%", label: "Satisfaction" },
-            { number: "50K+", label: "Travelers" },
-            { number: "24/7", label: "Support" }
+            { number: "180", suffix: "+", label: "Destinations" },
+            { number: "95", suffix: "%", label: "Satisfaction" },
+            { number: "50000", suffix: "+", label: "Travelers" },
+            { number: "24", suffix: "/7", label: "Support" }
           ].map((stat, index) => (
-            <motion.div 
+            <motion.div
               key={index}
               variants={itemVariants}
               className="text-center group"
               whileHover={{ scale: 1.05 }}
             >
               <div className="text-3xl md:text-4xl font-bold text-gradient-primary mb-2 group-hover:animate-pulse">
-                {stat.number}
+                <AnimatedNumber value={stat.number} suffix={stat.suffix} />
               </div>
               <p className="text-muted-foreground font-medium">
                 {stat.label}

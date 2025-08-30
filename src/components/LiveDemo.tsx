@@ -1,8 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { MapPin, Calendar, DollarSign, Leaf, Sparkles, Users, Clock, Star, Download, Share2, Heart, Navigation, Loader2, ChevronRight, ChevronDown } from "lucide-react";
 import { generateItinerary, type TripRequest, type TripItinerary, getCurrencyRates, getWeatherForecast } from "@/services/api";
+import MapView from "@/components/MapView";
+import LeafletMap from "@/components/LeafletMap";
+import { translateLibre } from "@/services/api";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 const LiveDemo = () => {
   const [formData, setFormData] = useState<TripRequest>({
@@ -20,31 +25,84 @@ const LiveDemo = () => {
   const [expandedDay, setExpandedDay] = useState<number | null>(null);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [currencyRates, setCurrencyRates] = useState<Record<string, number>>({});
+  const [selectedCurrency, setSelectedCurrency] = useState<string>('AUTO');
+  const [itineraryText, setItineraryText] = useState<string>("");
+  const [translatedText, setTranslatedText] = useState<string>("");
+  const [translateLang, setTranslateLang] = useState<string>("es");
+  const [barsActive, setBarsActive] = useState(false);
 
   const [ref, inView] = useInView({
     threshold: 0.1,
     triggerOnce: true
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!formData.destination || !formData.checkin || !formData.checkout) {
+  const interestsOptions = ["Food", "Culture", "Nature", "Adventure", "Nightlife", "Relaxation"];
+
+  // Prefetch currency rates for selector
+  useEffect(() => {
+    if (!Object.keys(currencyRates).length) {
+      getCurrencyRates('USD').then((r)=>setCurrencyRates(r)).catch(()=>{});
+    }
+  }, []);
+
+  // Prefill destination from URL query (e.g., ?destination=Tokyo)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const dest = params.get('destination');
+    if (dest) {
+      setFormData(prev => ({ ...prev, destination: dest }));
+    }
+  }, []);
+
+  // Listen for hero "Plan My Dream Trip" event: autofill and notify
+  useEffect(() => {
+    const handler = (ev: Event) => {
+      const e = ev as CustomEvent<TripRequest>;
+      const req = e.detail;
+      if (!req || !req.destination) return;
+      setFormData(prev => ({ ...prev, ...req }));
+      const el = document.getElementById('itinerary-generator');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      toast.success('Your itinerary form has been auto-filled!');
+    };
+    window.addEventListener('ai-plan-trip', handler as EventListener);
+    return () => window.removeEventListener('ai-plan-trip', handler as EventListener);
+  }, []);
+
+  const generateFromRequest = async (request: TripRequest) => {
+    if (!request.destination || !request.checkin || !request.checkout) {
       setError('Please fill in all required fields');
       return;
     }
 
     setIsGenerating(true);
     setError(null);
-    
+
     try {
-      const [itinerary, rates] = await Promise.all([
-        generateItinerary(formData),
-        getCurrencyRates('USD')
+      const [itinerary, rates, forecast] = await Promise.all([
+        generateItinerary(request),
+        getCurrencyRates('USD'),
+        getWeatherForecast(request.destination)
       ]);
-      
-      setGeneratedItinerary(itinerary);
+
+      const merged: TripItinerary = {
+        ...itinerary,
+        days: itinerary.days.map((d, i) => ({
+          ...d,
+          weather: forecast[i] ? forecast[i] : d.weather,
+        }))
+      };
+      setGeneratedItinerary(merged);
       setCurrencyRates(rates);
+
+      const text = [
+        `Destination: ${merged.destination}`,
+        `Duration: ${merged.duration} days, Travelers: ${merged.travelers}`,
+        '',
+        ...merged.days.map(d => `Day ${d.day} (${d.date}): ${d.title}\n- ${d.description}\n- Activities: ${d.activities.map(a => a.name).join(', ')}`)
+      ].join('\n');
+      setItineraryText(text);
+      setTranslatedText("");
     } catch (err) {
       setError('Failed to generate itinerary. Please try again.');
       console.error('Error:', err);
@@ -52,6 +110,19 @@ const LiveDemo = () => {
       setIsGenerating(false);
     }
   };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await generateFromRequest(formData);
+  };
+
+  useEffect(() => {
+    if (generatedItinerary) {
+      setBarsActive(false);
+      const t = setTimeout(() => setBarsActive(true), 50);
+      return () => clearTimeout(t);
+    }
+  }, [generatedItinerary]);
 
   const toggleFavorite = (activityId: string) => {
     setFavorites(prev => 
@@ -113,6 +184,45 @@ const LiveDemo = () => {
       opacity: 1,
       y: 0,
       transition: { duration: 0.6 }
+    }
+  };
+
+  const guessCurrencyCode = (dest: string): string | null => {
+    if (!dest) return null;
+    const s = dest.toLowerCase();
+    const pairs: { keys: string[]; code: string }[] = [
+      { keys: ['japan','tokyo','kyoto','osaka'], code: 'JPY' },
+      { keys: ['france','paris','nice','lyon'], code: 'EUR' },
+      { keys: ['spain','madrid','barcelona','sevilla'], code: 'EUR' },
+      { keys: ['italy','rome','milan','venice','florence'], code: 'EUR' },
+      { keys: ['germany','berlin','munich','frankfurt'], code: 'EUR' },
+      { keys: ['united kingdom','uk','england','london'], code: 'GBP' },
+      { keys: ['india','delhi','mumbai','bangalore','kolkata'], code: 'INR' },
+      { keys: ['china','beijing','shanghai','guangzhou'], code: 'CNY' },
+      { keys: ['australia','sydney','melbourne'], code: 'AUD' },
+      { keys: ['canada','toronto','vancouver','montreal'], code: 'CAD' },
+      { keys: ['south korea','korea','seoul'], code: 'KRW' },
+      { keys: ['costa rica','san jose'], code: 'CRC' },
+      { keys: ['greece','santorini','athens'], code: 'EUR' },
+      { keys: ['usa','united states','new york','los angeles','san francisco','miami'], code: 'USD' },
+      { keys: ['mexico','cancun','mexico city'], code: 'MXN' },
+      { keys: ['switzerland','zurich','geneva'], code: 'CHF' }
+    ];
+    for (const p of pairs) {
+      if (p.keys.some(k => s.includes(k))) return p.code;
+    }
+    return null;
+  };
+
+  const formatCurrency = (amountUSD: number) => {
+    const autoCode = generatedItinerary?.currency?.code || guessCurrencyCode(formData.destination) || 'USD';
+    const code = selectedCurrency === 'AUTO' ? autoCode : (selectedCurrency || 'USD');
+    const rate = code === 'USD' ? 1 : (currencyRates[code] || 1);
+    const converted = amountUSD * rate;
+    try {
+      return new Intl.NumberFormat(undefined, { style: 'currency', currency: code }).format(Math.round(converted));
+    } catch {
+      return `${code} ${Math.round(converted)}`;
     }
   };
 
@@ -180,7 +290,7 @@ const LiveDemo = () => {
                     required
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2 flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-primary" />
@@ -195,6 +305,30 @@ const LiveDemo = () => {
                     required
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2 flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-primary" />
+                  Duration (days)
+                </label>
+                <select
+                  value={Math.max(2, Math.min(14, Math.ceil((new Date(formData.checkout).getTime() - new Date(formData.checkin).getTime())/(1000*60*60*24)) || 2))}
+                  onChange={(e) => {
+                    const days = Number(e.target.value);
+                    if (formData.checkin) {
+                      const d = new Date(formData.checkin);
+                      d.setDate(d.getDate() + days);
+                      const iso = d.toISOString().split('T')[0];
+                      setFormData({ ...formData, checkout: iso });
+                    }
+                  }}
+                  className="w-full px-4 py-3 rounded-xl border border-border bg-background focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                >
+                  {[...Array(13)].map((_, i) => (
+                    <option key={i+2} value={i+2}>{i+2} days</option>
+                  ))}
+                </select>
               </div>
               
               <div className="grid grid-cols-2 gap-4">
@@ -221,18 +355,69 @@ const LiveDemo = () => {
                     <DollarSign className="w-4 h-4 text-primary" />
                     Budget Range
                   </label>
-                  <select
-                    value={formData.budget}
-                    onChange={(e) => setFormData({...formData, budget: e.target.value})}
-                    className="w-full px-4 py-3 rounded-xl border border-border bg-background focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                  >
-                    <option value="budget">Budget ($50-100/day)</option>
-                    <option value="medium">Medium ($100-200/day)</option>
-                    <option value="luxury">Luxury ($200+/day)</option>
-                  </select>
+                  <div className="px-2">
+                    <input
+                      type="range"
+                      min={1}
+                      max={3}
+                      step={1}
+                      value={{ budget:1, medium:2, luxury:3 }[formData.budget as 'budget'|'medium'|'luxury']}
+                      onChange={(e) => {
+                        const val = Number(e.target.value);
+                        const map: Record<number,string> = {1:'budget',2:'medium',3:'luxury'};
+                        setFormData({ ...formData, budget: map[val] });
+                      }}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                      <span>Budget</span><span>Medium</span><span>Luxury</span>
+                    </div>
+                    <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">Currency:</span>
+                        <select
+                          value={selectedCurrency}
+                          onChange={(e)=>setSelectedCurrency(e.target.value)}
+                          className="px-2 py-1 border border-border rounded-lg text-xs bg-background"
+                        >
+                          <option value="AUTO">Auto ({guessCurrencyCode(formData.destination) || 'USD'})</option>
+                          {Object.keys(currencyRates).map(code => (
+                            <option key={code} value={code}>{code}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Est. daily: {formatCurrency(150 * ({ budget:0.7, medium:1.0, luxury:1.8 }[formData.budget as 'budget'|'medium'|'luxury']))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
               
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">Interests</label>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {interestsOptions.map((tag) => {
+                    const active = (formData.interests || []).includes(tag);
+                    return (
+                      <button
+                        key={tag}
+                        type="button"
+                        onClick={() => {
+                          const set = new Set(formData.interests || []);
+                          if (set.has(tag)) set.delete(tag); else set.add(tag);
+                          setFormData({ ...formData, interests: Array.from(set) });
+                        }}
+                        className={`px-3 py-1 rounded-full text-sm border transition-colors ${active ? 'bg-primary text-white border-primary' : 'bg-background text-foreground border-border hover:bg-muted'}`}
+                        aria-pressed={active}
+                      >
+                        {tag}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               <div className="flex items-center space-x-3">
                 <input
                   type="checkbox"
@@ -263,6 +448,7 @@ const LiveDemo = () => {
                 className="w-full btn-hero disabled:opacity-50 disabled:cursor-not-allowed"
                 whileHover={{ scale: isGenerating ? 1 : 1.02 }}
                 whileTap={{ scale: isGenerating ? 1 : 0.98 }}
+                aria-label="Generate itinerary"
               >
                 {isGenerating ? (
                   <>
@@ -277,6 +463,36 @@ const LiveDemo = () => {
                 )}
               </motion.button>
             </form>
+
+            {formData.destination && (
+              <div className="mt-4">
+                <div className="text-sm font-medium text-foreground mb-2">
+                  Selected: <span className="text-primary">{formData.destination}</span>
+                </div>
+                <LeafletMap city={formData.destination} height={140} />
+              </div>
+            )}
+
+            <div className="mt-4 text-center">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <button className="text-primary hover:text-accent font-medium">View Sample Itinerary</button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Sample Itinerary Preview</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-3 text-sm text-muted-foreground">
+                    <p>Preview a 3-day city escape with top attractions, dining, and transport tips.</p>
+                    <ul className="list-disc pl-5">
+                      <li>Day 1: Arrival, city walk, local dinner</li>
+                      <li>Day 2: Museums, markets, cultural show</li>
+                      <li>Day 3: Nature spot and souvenir shopping</li>
+                    </ul>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
           </motion.div>
 
           {/* Enhanced Results */}
@@ -340,7 +556,18 @@ const LiveDemo = () => {
                         </p>
                       </div>
                       
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 items-center">
+                        <label className="text-sm text-muted-foreground">Currency:</label>
+                        <select
+                          value={selectedCurrency}
+                          onChange={(e)=>setSelectedCurrency(e.target.value)}
+                          className="px-2 py-1 border border-border rounded-lg text-sm bg-background"
+                        >
+                          <option value="AUTO">Auto ({generatedItinerary?.currency?.code || 'USD'})</option>
+                          {["USD", ...Object.keys(currencyRates).filter(c=>c!=="USD")].map(code => (
+                            <option key={code} value={code}>{code}</option>
+                          ))}
+                        </select>
                         <motion.button
                           onClick={shareItinerary}
                           className="p-2 rounded-lg hover:bg-primary/10 transition-colors"
@@ -365,7 +592,7 @@ const LiveDemo = () => {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-gradient-to-r from-primary/5 to-accent/5 rounded-xl">
                       <div className="text-center">
                         <div className="text-lg font-bold text-foreground">
-                          ${Math.round(generatedItinerary.total_budget)}
+                          {formatCurrency(generatedItinerary.total_budget)}
                         </div>
                         <div className="text-xs text-muted-foreground">Total Budget</div>
                       </div>
@@ -389,6 +616,22 @@ const LiveDemo = () => {
                         <div className="text-xs text-muted-foreground">CO₂ Offset</div>
                       </div>
                     </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                      <div className="p-4 border border-border/50 rounded-xl">
+                        <h4 className="font-semibold mb-2">Weather</h4>
+                        {generatedItinerary.days[0]?.weather ? (
+                          <div className="text-sm text-muted-foreground">
+                            <div>Today: {generatedItinerary.days[0].weather.condition}</div>
+                            <div>Temp: {Math.round(generatedItinerary.days[0].weather.temperature.low)}°C - {Math.round(generatedItinerary.days[0].weather.temperature.high)}°C</div>
+                            <div>Precipitation: {generatedItinerary.days[0].weather.precipitation_chance}%</div>
+                          </div>
+                        ) : (
+                          <div className="text-sm text-muted-foreground">Weather data unavailable</div>
+                        )}
+                      </div>
+                      <LeafletMap city={generatedItinerary.destination} height={180} />
+                    </div>
                   </div>
 
                   {/* Day-by-Day Itinerary */}
@@ -396,9 +639,10 @@ const LiveDemo = () => {
                     {generatedItinerary.days.map((day, index) => (
                       <motion.div
                         key={day.day}
-                        initial={{ opacity: 0, x: -20 }}
+                        initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.1 }}
+                        whileHover={{ scale: 1.01, rotate: 0.25 }}
                         className="border border-border/50 rounded-xl overflow-hidden"
                       >
                         <button
@@ -450,7 +694,7 @@ const LiveDemo = () => {
                                             </div>
                                           </div>
                                           <p className="text-xs text-muted-foreground">
-                                            {activity.duration} • ${activity.price}
+                                            {activity.duration} • {formatCurrency(activity.price)}
                                           </p>
                                         </div>
                                         <button
@@ -474,19 +718,28 @@ const LiveDemo = () => {
                                   <div className="grid grid-cols-2 gap-2 text-xs">
                                     <div className="flex justify-between">
                                       <span className="text-muted-foreground">Activities:</span>
-                                      <span className="font-medium">${Math.round(day.budget.activities)}</span>
+                                      <span className="font-medium">{formatCurrency(day.budget.activities)}</span>
+                                    </div>
+                                    <div className="w-full bg-muted rounded-full h-2 col-span-2">
+                                      <div className="bg-primary h-2 rounded-full transition-all duration-700" style={{ width: barsActive ? `${Math.min(100, Math.round((day.budget.activities/day.budget.total)*100))}%` : '0%' }} />
                                     </div>
                                     <div className="flex justify-between">
                                       <span className="text-muted-foreground">Food:</span>
-                                      <span className="font-medium">${Math.round(day.budget.food)}</span>
+                                      <span className="font-medium">{formatCurrency(day.budget.food)}</span>
+                                    </div>
+                                    <div className="w-full bg-muted rounded-full h-2 col-span-2">
+                                      <div className="bg-accent h-2 rounded-full transition-all duration-700" style={{ width: barsActive ? `${Math.min(100, Math.round((day.budget.food/day.budget.total)*100))}%` : '0%' }} />
                                     </div>
                                     <div className="flex justify-between">
                                       <span className="text-muted-foreground">Transport:</span>
-                                      <span className="font-medium">${Math.round(day.budget.transportation)}</span>
+                                      <span className="font-medium">{formatCurrency(day.budget.transportation)}</span>
+                                    </div>
+                                    <div className="w-full bg-muted rounded-full h-2 col-span-2">
+                                      <div className="bg-secondary h-2 rounded-full transition-all duration-700" style={{ width: barsActive ? `${Math.min(100, Math.round((day.budget.transportation/day.budget.total)*100))}%` : '0%' }} />
                                     </div>
                                     <div className="flex justify-between font-semibold">
                                       <span>Total:</span>
-                                      <span>${Math.round(day.budget.total)}</span>
+                                      <span>{formatCurrency(day.budget.total)}</span>
                                     </div>
                                   </div>
                                 </div>
@@ -497,20 +750,48 @@ const LiveDemo = () => {
                       </motion.div>
                     ))}
                   </div>
-                  
+
+                  {/* Itinerary (Text) + Translation */}
+                  <div className="mt-6 p-4 border border-border/50 rounded-xl">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+                      <h4 className="font-semibold">Itinerary (Text)</h4>
+                      <div className="flex items-center gap-2">
+                        <select value={translateLang} onChange={(e)=>setTranslateLang(e.target.value)} className="px-3 py-2 border border-border rounded-lg text-sm">
+                          {[
+                            { code: 'es', label: 'Spanish' },
+                            { code: 'fr', label: 'French' },
+                            { code: 'de', label: 'German' },
+                            { code: 'ja', label: 'Japanese' },
+                            { code: 'hi', label: 'Hindi' },
+                          ].map(l => <option key={l.code} value={l.code}>{l.label}</option>)}
+                        </select>
+                        <button
+                          className="px-4 py-2 rounded-lg border border-border hover:bg-muted text-sm"
+                          onClick={async()=>{
+                            const res = await translateLibre(itineraryText, translateLang);
+                            setTranslatedText(res);
+                          }}
+                        >Translate</button>
+                      </div>
+                    </div>
+                    <pre className="text-xs whitespace-pre-wrap bg-muted/30 p-3 rounded-lg max-h-60 overflow-auto">{translatedText || itineraryText}</pre>
+                  </div>
+
                   {/* Action Buttons */}
                   <div className="flex gap-3 mt-6 pt-6 border-t border-border/50">
-                    <motion.button 
+                    <motion.button
                       className="flex-1 btn-outline-hero text-sm"
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
+                      onClick={() => toast("Saved to favorites (placeholder)")}
                     >
                       Save Itinerary
                     </motion.button>
-                    <motion.button 
+                    <motion.button
                       className="flex-1 btn-hero-secondary text-sm"
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
+                      onClick={() => toast("Booking flow coming soon")}
                     >
                       <ChevronRight className="w-4 h-4 mr-1" />
                       Book Now
