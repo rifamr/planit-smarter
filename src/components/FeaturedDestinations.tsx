@@ -454,9 +454,37 @@ const FeaturedDestinations = () => {
                       <img src={`${destination.image}&blur=0&auto=format&fit=crop`} alt={`${destination.name} view 3`} className="w-full h-40 object-cover rounded-xl" loading="lazy" />
                     </div>
                     <p className="text-sm text-muted-foreground">{destination.description}</p>
-                    <div className="flex flex-wrap gap-2">
-                      {destination.highlights.slice(0,7).map((h, i) => (
-                        <span key={i} className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">{h}</span>
+                    <div className="space-y-2">
+                      {destination.highlights.map((h, i) => (
+                        <div key={i} className="flex items-center justify-between p-2 bg-muted/30 rounded-lg">
+                          <span className="text-sm text-foreground">{h}</span>
+                          <button
+                            className="btn-outline-hero text-xs"
+                            onClick={() => {
+                              const today = new Date();
+                              const toISO = (d: Date) => d.toISOString().split('T')[0];
+                              const checkin = toISO(today);
+                              const out = new Date(today);
+                              out.setDate(out.getDate() + 4);
+                              const checkout = toISO(out);
+                              const detail: any = {
+                                destination: `${destination.name}, ${destination.country}`,
+                                checkin,
+                                checkout,
+                                travelers: 2,
+                                budget: 'medium',
+                                sustainability: destination.sustainable || false,
+                                interests: [h, ...(destination.category||[])].slice(0,5)
+                              };
+                              window.dispatchEvent(new CustomEvent('ai-plan-trip', { detail }));
+                              const it = document.getElementById('itinerary-generator');
+                              if (it) it.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }}
+                            aria-label={`Plan trip for ${destination.name} - ${h}`}
+                          >
+                            Plan Trip
+                          </button>
+                        </div>
                       ))}
                     </div>
                   </div>
