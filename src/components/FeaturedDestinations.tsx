@@ -1,5 +1,8 @@
-import { useState } from "react";
-import { MapPin, Star, Heart, Clock, Camera, Utensils, Mountain, Users, Filter } from "lucide-react";
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { useInView } from "react-intersection-observer";
+import { MapPin, Star, Heart, Clock, Camera, Utensils, Mountain, Users, Filter, Loader2 } from "lucide-react";
+import { getFeaturedDestinations } from "@/services/api";
 
 interface Destination {
   id: string;
