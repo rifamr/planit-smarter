@@ -303,7 +303,7 @@ const SustainabilityMode = () => {
                   const el = document.documentElement;
                   el.classList.add('eco');
                   try { localStorage.setItem('ecoMode', '1'); } catch {}
-                  try { (window as any).toast?.success?.('Sustainability Mode enabled'); } catch {}
+                  try { toast.success('Sustainability Mode enabled'); } catch {}
                   const it = document.getElementById('itinerary-generator');
                   if (it) it.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }}
