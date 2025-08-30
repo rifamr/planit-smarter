@@ -275,7 +275,7 @@
   }
   
   .bg-section {
-    @apply bg-gradient-to-r from-muted/30 to-accent/5;
+    @apply bg-gradient-to-r from-muted/30 to-accent/5 overflow-x-hidden;
   }
   
   .bg-section-alt {
