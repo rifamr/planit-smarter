@@ -525,11 +525,17 @@
   .animate-parallax {
     animation: none;
   }
-  
+
   .hover-lift,
   .feature-card,
   .destination-card {
-    @apply transform-none;
+    transform: none !important;
+  }
+
+  .hover-lift:hover,
+  .feature-card:hover,
+  .destination-card:hover {
+    transform: none !important;
   }
 }
 
