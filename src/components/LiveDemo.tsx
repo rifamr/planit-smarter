@@ -73,6 +73,19 @@ const LiveDemo = () => {
     return () => window.removeEventListener('ai-plan-trip', handler as EventListener);
   }, []);
 
+  useEffect(() => {
+    const handler = (ev: Event) => {
+      const e = ev as CustomEvent<{ targetLang: string }>;
+      const lang = e.detail?.targetLang;
+      if (lang) {
+        setUiLang(lang);
+        translateCurrentItinerary(lang);
+      }
+    };
+    window.addEventListener('translate-itinerary', handler as EventListener);
+    return () => window.removeEventListener('translate-itinerary', handler as EventListener);
+  }, [generatedItinerary]);
+
   const generateFromRequest = async (request: TripRequest) => {
     if (!request.destination || !request.checkin || !request.checkout) {
       setError('Please fill in all required fields');
