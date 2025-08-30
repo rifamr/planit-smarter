@@ -1,3 +1,4 @@
+import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
 import HowItWorks from "@/components/HowItWorks";
 import FeaturedDestinations from "@/components/FeaturedDestinations";
@@ -13,16 +14,35 @@ import Footer from "@/components/Footer";
 const Index = () => {
   return (
     <div className="min-h-screen">
+      <Navigation />
       <Hero />
-      <HowItWorks />
-      <FeaturedDestinations />
-      <Features />
-      <SustainabilityMode />
-      <LiveDemo />
-      <LanguageAssistance />
-      <Testimonials />
-      <TravelBlog />
-      <Pricing />
+      <div id="how-it-works">
+        <HowItWorks />
+      </div>
+      <div id="featured-destinations">
+        <FeaturedDestinations />
+      </div>
+      <div id="features">
+        <Features />
+      </div>
+      <div id="sustainability-mode">
+        <SustainabilityMode />
+      </div>
+      <div id="itinerary-generator">
+        <LiveDemo />
+      </div>
+      <div id="language-assistance">
+        <LanguageAssistance />
+      </div>
+      <div id="testimonials">
+        <Testimonials />
+      </div>
+      <div id="travel-blog">
+        <TravelBlog />
+      </div>
+      <div id="pricing">
+        <Pricing />
+      </div>
       <Footer />
     </div>
   );
