@@ -124,6 +124,12 @@ const LiveDemo = () => {
     if (generatedItinerary) {
       setBarsActive(false);
       const t = setTimeout(() => setBarsActive(true), 50);
+      if (uiLang && uiLang !== 'en') {
+        translateCurrentItinerary(uiLang);
+      } else {
+        setTmap({});
+        setTranslatedText("");
+      }
       return () => clearTimeout(t);
     }
   }, [generatedItinerary]);
