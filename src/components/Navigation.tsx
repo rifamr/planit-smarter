@@ -307,6 +307,9 @@ const Navigation = () => {
                 </div>
 
                 <div className="flex flex-col gap-3 mt-6 pt-6 border-t border-border/50">
+                  <div className="flex justify-end mb-2">
+                    <ThemeToggle inline />
+                  </div>
                   <motion.button
                     className="w-full py-3 text-center font-medium text-muted-foreground hover:text-primary transition-colors rounded-xl hover:bg-primary/10"
                     onClick={() => scrollToSection('pricing')}
@@ -316,7 +319,7 @@ const Navigation = () => {
                   >
                     Sign In
                   </motion.button>
-                  
+
                   <motion.button
                     className="w-full btn-primary"
                     onClick={() => scrollToSection('itinerary-generator')}
