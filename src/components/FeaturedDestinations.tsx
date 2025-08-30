@@ -157,19 +157,47 @@ const FeaturedDestinations = () => {
     );
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0, y: 50 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.8,
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6 }
+    }
+  };
+
   return (
-    <section className="section-padding bg-section">
+    <section className="section-padding bg-section" ref={ref}>
       <div className="max-w-7xl mx-auto container-padding">
         {/* Header */}
-        <div className="text-center mb-16 animate-fade-in">
-          <h2 className="text-responsive-xl font-bold text-foreground mb-6">
-            Featured <span className="text-gradient-primary">Destinations</span>
-          </h2>
-          <p className="text-responsive-md text-muted-foreground max-w-3xl mx-auto">
-            Discover handpicked destinations that offer unforgettable experiences, 
-            from sustainable adventures to cultural immersions.
-          </p>
-        </div>
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate={inView ? "visible" : "hidden"}
+          className="text-center mb-16"
+        >
+          <motion.div variants={itemVariants}>
+            <h2 className="text-responsive-xl font-bold text-foreground mb-6">
+              Featured <span className="text-gradient-primary">Destinations</span>
+            </h2>
+            <p className="text-responsive-md text-muted-foreground max-w-3xl mx-auto">
+              Discover handpicked destinations that offer unforgettable experiences,
+              from sustainable adventures to cultural immersions.
+            </p>
+          </motion.div>
+        </motion.div>
 
         {/* Category Filters */}
         <div className="flex flex-wrap justify-center gap-3 mb-12 animate-slide-up">
