@@ -275,9 +275,21 @@ const FeaturedDestinations = () => {
                 <DialogTrigger asChild>
                   <motion.div
                     variants={itemVariants}
-                    className="destination-card group cursor-pointer"
+                    className={`destination-card group cursor-pointer will-change-transform ${destination.sustainable ? 'ring-0 group-hover:ring-2 group-hover:ring-green-300' : ''}`}
                     whileHover={{ scale: 1.02, y: -8 }}
                     transition={{ duration: 0.3 }}
+                    onMouseMove={(e) => {
+                      const el = e.currentTarget as HTMLDivElement;
+                      const r = el.getBoundingClientRect();
+                      const x = e.clientX - r.left;
+                      const y = e.clientY - r.top;
+                      const rotY = ((x - r.width / 2) / (r.width / 2)) * 6;
+                      const rotX = (-(y - r.height / 2) / (r.height / 2)) * 6;
+                      el.style.transform = `perspective(900px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale(1.03)`;
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLDivElement).style.transform = '';
+                    }}
                   >
                 {/* Image Container */}
                 <div className="relative h-64 overflow-hidden">
@@ -391,8 +403,8 @@ const FeaturedDestinations = () => {
                   <div className="flex gap-3">
                     <motion.button
                       className="flex-1 btn-primary text-sm"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                      whileHover={{ scale: 1.04 }}
+                      whileTap={{ scale: 0.95, y: -2 }}
                       onClick={() => {
                         const today = new Date();
                         const toISO = (d: Date) => d.toISOString().split('T')[0];
