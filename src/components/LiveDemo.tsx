@@ -886,6 +886,20 @@ const LiveDemo = () => {
                         <p className="text-xs text-muted-foreground">Offset flights via verified projects and pack light to cut emissions.</p>
                       </div>
                     </div>
+
+                    {/* Trip Companion Summary */}
+                    <div className="mt-4 bg-primary/5 border border-primary/20 rounded-lg p-3">
+                      <div className="font-medium mb-1">Your Trip Companion</div>
+                      <p className="text-xs text-muted-foreground">
+                        {(() => {
+                          const comp = typeof window !== 'undefined' ? localStorage.getItem('tripCompanion') : null;
+                          if (comp === 'foodie') return 'Foodie Guide: restaurant maps, markets, tastings, and regional specialties.';
+                          if (comp === 'history') return 'History Expert: museum passes, heritage walks, and landmark stories.';
+                          if (comp === 'adventure') return 'Adventure Buddy: sunrise hikes, guided trails, and eco operators.';
+                          return 'Pick a companion in the Companions section to get tailored tips.';
+                        })()}
+                      </p>
+                    </div>
                   </div>
                 </motion.div>
               ) : (
