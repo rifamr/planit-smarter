@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Calendar, Clock, User, ArrowRight, Filter, Search, BookOpen, Compass, Heart, Utensils, Camera } from "lucide-react";
+import LazyImage from "@/components/ui/LazyImage";
 
 const TravelBlog = () => {
   const navigate = useNavigate();
@@ -207,11 +208,12 @@ const TravelBlog = () => {
                   onKeyDown={(e) => e.key === 'Enter' && navigate(`/blog/${post.id}`)}
                 >
                   <div className="relative overflow-hidden rounded-xl mb-6">
-                    <img
+                    <LazyImage
                       src={post.image}
                       alt={post.title}
                       className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700"
                       loading="lazy"
+                      sizes="(max-width: 1024px) 100vw, 50vw"
                     />
                     <div className="absolute top-4 left-4">
                       <span className="bg-primary text-white px-3 py-1 rounded-full text-sm font-medium">
@@ -292,11 +294,12 @@ const TravelBlog = () => {
                 onKeyDown={(e) => e.key === 'Enter' && navigate(`/blog/${post.id}`)}
               >
                 <div className="relative overflow-hidden rounded-xl mb-4">
-                  <img
+                  <LazyImage
                     src={post.image}
                     alt={post.title}
                     className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
                     loading="lazy"
+                    sizes="(max-width: 1024px) 100vw, 33vw"
                   />
                   <div className="absolute top-3 right-3">
                     <span className="bg-black/30 text-white px-2 py-1 rounded-full text-xs backdrop-blur-sm">
