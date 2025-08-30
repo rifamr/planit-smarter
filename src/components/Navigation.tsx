@@ -339,12 +339,12 @@ const Navigation = () => {
                   </div>
                   <motion.button
                     className="w-full py-3 text-center font-medium text-muted-foreground hover:text-primary transition-colors rounded-xl hover:bg-primary/10"
-                    onClick={() => scrollToSection('pricing')}
+                    onClick={() => { window.location.href = '/signup'; }}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.6, duration: 0.3 }}
                   >
-                    Sign In
+                    Sign Up
                   </motion.button>
 
                   <motion.button
