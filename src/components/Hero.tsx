@@ -216,8 +216,17 @@ const Hero = () => {
             <span className="text-sm text-white/80">Instant & Personalized</span>
           </motion.div>
 
+          {/* Greeting */}
+          <motion.div variants={itemVariants} className="mb-4">
+            <p className="text-white/90 text-lg">
+              {localStorage.getItem('mockUserName')
+                ? `Welcome back, ${localStorage.getItem('mockUserName')}! Ready for your next trip?`
+                : 'Hello Explorer! Start your dream trip today.'}
+            </p>
+          </motion.div>
+
           {/* Main Heading */}
-          <motion.h1 
+          <motion.h1
             variants={itemVariants}
             className="text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-6 leading-tight"
           >
@@ -227,12 +236,12 @@ const Hero = () => {
               Smarter with AI
             </span>
           </motion.h1>
-          
-          <motion.p 
+
+          <motion.p
             variants={itemVariants}
             className="text-xl md:text-2xl text-white/90 mb-12 max-w-4xl mx-auto leading-relaxed"
           >
-            Your dream itinerary in seconds. Get personalized travel plans 
+            Your dream itinerary in seconds. Get personalized travel plans
             that match your style, budget, and sustainability goals.
           </motion.p>
 
@@ -383,11 +392,11 @@ const Hero = () => {
           </motion.div>
 
           {/* Action Buttons */}
-          <motion.div 
+          <motion.div
             variants={itemVariants}
             className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16"
           >
-            <motion.button 
+            <motion.button
               onClick={handleExploreEco}
               className="btn-hero-secondary group"
               whileHover={{ scale: 1.05 }}
@@ -396,8 +405,13 @@ const Hero = () => {
               <Leaf className="w-5 h-5 mr-2 group-hover:animate-bounce" />
               Explore Eco-Travel
             </motion.button>
-            
-            <motion.button 
+
+            <div className="flex items-center gap-3 bg-white/10 backdrop-blur border border-white/20 rounded-full px-4 py-2 text-white">
+              <span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
+              <span className="text-sm">You saved 200kg CO₂ this trip!</span>
+            </div>
+
+            <motion.button
               onClick={() => scrollToSection('how-it-works')}
               className="flex items-center gap-2 text-white/90 hover:text-white font-medium transition-colors group"
               whileHover={{ scale: 1.05 }}

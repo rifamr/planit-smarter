@@ -13,6 +13,9 @@ const Navigation = () => {
       setIsScrolled(window.scrollY > 50);
     };
 
+    const eco = localStorage.getItem('ecoMode') === '1';
+    document.documentElement.classList.toggle('eco', eco);
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -171,11 +174,23 @@ const Navigation = () => {
 
             {/* CTA Buttons + Theme */}
             <div className="hidden lg:flex items-center gap-4">
+              <button
+                aria-label="Eco mode"
+                onClick={() => {
+                  const el = document.documentElement;
+                  const on = !el.classList.contains('eco');
+                  el.classList.toggle('eco', on);
+                  localStorage.setItem('ecoMode', on ? '1' : '0');
+                }}
+                className={`relative w-10 h-10 rounded-full border ${isScrolled ? 'border-border text-foreground bg-card' : 'border-white/30 text-white/90 bg-white/10'} hover:shadow-lg transition flex items-center justify-center`}
+              >
+                <Leaf className="w-5 h-5 text-green-500" />
+              </button>
               <ThemeToggle inline />
               <motion.button
                 className={`px-6 py-2 rounded-lg font-medium transition-all duration-300 ${
-                  isScrolled 
-                    ? 'text-muted-foreground hover:text-primary' 
+                  isScrolled
+                    ? 'text-muted-foreground hover:text-primary'
                     : 'text-white/90 hover:text-white'
                 }`}
                 onClick={() => scrollToSection('pricing')}
@@ -184,7 +199,7 @@ const Navigation = () => {
               >
                 Sign In
               </motion.button>
-              
+
               <motion.button
                 className="btn-primary"
                 onClick={() => scrollToSection('itinerary-generator')}
@@ -307,7 +322,19 @@ const Navigation = () => {
                 </div>
 
                 <div className="flex flex-col gap-3 mt-6 pt-6 border-t border-border/50">
-                  <div className="flex justify-end mb-2">
+                  <div className="flex justify-end mb-2 gap-2">
+                    <button
+                      aria-label="Eco mode"
+                      onClick={() => {
+                        const el = document.documentElement;
+                        const on = !el.classList.contains('eco');
+                        el.classList.toggle('eco', on);
+                        localStorage.setItem('ecoMode', on ? '1' : '0');
+                      }}
+                      className="relative w-10 h-10 rounded-full border border-border text-foreground bg-card hover:shadow-md transition flex items-center justify-center"
+                    >
+                      <Leaf className="w-5 h-5 text-green-500" />
+                    </button>
                     <ThemeToggle inline />
                   </div>
                   <motion.button

@@ -338,6 +338,11 @@
     @apply shadow-lg shadow-primary/25;
   }
 
+  /* Eco mode highlight */
+  .eco .eco-highlight {
+    @apply ring-2 ring-green-400 shadow-glow-green;
+  }
+
   .hover-float:hover {
     @apply animate-float;
   }

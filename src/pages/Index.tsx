@@ -10,12 +10,28 @@ import Testimonials from "@/components/Testimonials";
 import TravelBlog from "@/components/TravelBlog";
 import Pricing from "@/components/Pricing";
 import Footer from "@/components/Footer";
+import Recommended from "@/components/Recommended";
+import TravelTimeline from "@/components/TravelTimeline";
+import BudgetVisualizer from "@/components/BudgetVisualizer";
+import Gamification from "@/components/Gamification";
+import VirtualTours from "@/components/VirtualTours";
+import MoodBoard from "@/components/MoodBoard";
+import VoiceAndGestures from "@/components/VoiceAndGestures";
+import AIChatAssistant from "@/components/AIChatAssistant";
+import StarrySky from "@/components/StarrySky";
 
 const Index = () => {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen relative">
       <Navigation />
+      <StarrySky />
       <Hero />
+      <Recommended />
+      <TravelTimeline />
+      <BudgetVisualizer />
+      <Gamification />
+      <VirtualTours />
+      <MoodBoard />
       <div id="how-it-works">
         <HowItWorks />
       </div>
@@ -44,6 +60,8 @@ const Index = () => {
         <Pricing />
       </div>
       <Footer />
+      <VoiceAndGestures />
+      <AIChatAssistant />
     </div>
   );
 };
