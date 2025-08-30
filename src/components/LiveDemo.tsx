@@ -4,6 +4,8 @@ import { useInView } from "react-intersection-observer";
 import { MapPin, Calendar, DollarSign, Leaf, Sparkles, Users, Clock, Star, Download, Share2, Heart, Navigation, Loader2, ChevronRight, ChevronDown } from "lucide-react";
 import { generateItinerary, type TripRequest, type TripItinerary, getCurrencyRates, getWeatherForecast } from "@/services/api";
 import MapView from "@/components/MapView";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 const LiveDemo = () => {
   const [formData, setFormData] = useState<TripRequest>({
@@ -26,6 +28,8 @@ const LiveDemo = () => {
     threshold: 0.1,
     triggerOnce: true
   });
+
+  const interestsOptions = ["Food", "Culture", "Nature", "Adventure", "Nightlife", "Relaxation"];
 
   // Prefill destination from URL query (e.g., ?destination=Tokyo)
   useEffect(() => {
@@ -198,7 +202,7 @@ const LiveDemo = () => {
                     required
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2 flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-primary" />
@@ -213,6 +217,30 @@ const LiveDemo = () => {
                     required
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2 flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-primary" />
+                  Duration (days)
+                </label>
+                <select
+                  value={Math.max(2, Math.min(14, Math.ceil((new Date(formData.checkout).getTime() - new Date(formData.checkin).getTime())/(1000*60*60*24)) || 2))}
+                  onChange={(e) => {
+                    const days = Number(e.target.value);
+                    if (formData.checkin) {
+                      const d = new Date(formData.checkin);
+                      d.setDate(d.getDate() + days);
+                      const iso = d.toISOString().split('T')[0];
+                      setFormData({ ...formData, checkout: iso });
+                    }
+                  }}
+                  className="w-full px-4 py-3 rounded-xl border border-border bg-background focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                >
+                  {[...Array(13)].map((_, i) => (
+                    <option key={i+2} value={i+2}>{i+2} days</option>
+                  ))}
+                </select>
               </div>
               
               <div className="grid grid-cols-2 gap-4">
@@ -239,18 +267,51 @@ const LiveDemo = () => {
                     <DollarSign className="w-4 h-4 text-primary" />
                     Budget Range
                   </label>
-                  <select
-                    value={formData.budget}
-                    onChange={(e) => setFormData({...formData, budget: e.target.value})}
-                    className="w-full px-4 py-3 rounded-xl border border-border bg-background focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                  >
-                    <option value="budget">Budget ($50-100/day)</option>
-                    <option value="medium">Medium ($100-200/day)</option>
-                    <option value="luxury">Luxury ($200+/day)</option>
-                  </select>
+                  <div className="px-2">
+                    <input
+                      type="range"
+                      min={1}
+                      max={3}
+                      step={1}
+                      value={{ budget:1, medium:2, luxury:3 }[formData.budget as 'budget'|'medium'|'luxury']}
+                      onChange={(e) => {
+                        const val = Number(e.target.value);
+                        const map: Record<number,string> = {1:'budget',2:'medium',3:'luxury'};
+                        setFormData({ ...formData, budget: map[val] });
+                      }}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                      <span>Budget</span><span>Medium</span><span>Luxury</span>
+                    </div>
+                  </div>
                 </div>
               </div>
               
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">Interests</label>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {interestsOptions.map((tag) => {
+                    const active = (formData.interests || []).includes(tag);
+                    return (
+                      <button
+                        key={tag}
+                        type="button"
+                        onClick={() => {
+                          const set = new Set(formData.interests || []);
+                          if (set.has(tag)) set.delete(tag); else set.add(tag);
+                          setFormData({ ...formData, interests: Array.from(set) });
+                        }}
+                        className={`px-3 py-1 rounded-full text-sm border transition-colors ${active ? 'bg-primary text-white border-primary' : 'bg-background text-foreground border-border hover:bg-muted'}`}
+                        aria-pressed={active}
+                      >
+                        {tag}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               <div className="flex items-center space-x-3">
                 <input
                   type="checkbox"
@@ -281,6 +342,7 @@ const LiveDemo = () => {
                 className="w-full btn-hero disabled:opacity-50 disabled:cursor-not-allowed"
                 whileHover={{ scale: isGenerating ? 1 : 1.02 }}
                 whileTap={{ scale: isGenerating ? 1 : 0.98 }}
+                aria-label="Generate itinerary"
               >
                 {isGenerating ? (
                   <>
@@ -295,6 +357,27 @@ const LiveDemo = () => {
                 )}
               </motion.button>
             </form>
+
+            <div className="mt-4 text-center">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <button className="text-primary hover:text-accent font-medium">View Sample Itinerary</button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Sample Itinerary Preview</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-3 text-sm text-muted-foreground">
+                    <p>Preview a 3-day city escape with top attractions, dining, and transport tips.</p>
+                    <ul className="list-disc pl-5">
+                      <li>Day 1: Arrival, city walk, local dinner</li>
+                      <li>Day 2: Museums, markets, cultural show</li>
+                      <li>Day 3: Nature spot and souvenir shopping</li>
+                    </ul>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
           </motion.div>
 
           {/* Enhanced Results */}
@@ -530,17 +613,19 @@ const LiveDemo = () => {
                   
                   {/* Action Buttons */}
                   <div className="flex gap-3 mt-6 pt-6 border-t border-border/50">
-                    <motion.button 
+                    <motion.button
                       className="flex-1 btn-outline-hero text-sm"
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
+                      onClick={() => toast("Saved to favorites (placeholder)")}
                     >
                       Save Itinerary
                     </motion.button>
-                    <motion.button 
+                    <motion.button
                       className="flex-1 btn-hero-secondary text-sm"
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
+                      onClick={() => toast("Booking flow coming soon")}
                     >
                       <ChevronRight className="w-4 h-4 mr-1" />
                       Book Now
