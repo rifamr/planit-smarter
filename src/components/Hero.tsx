@@ -4,7 +4,6 @@ import { ArrowRight, Sparkles, Leaf, Search, MapPin, Calendar, DollarSign, Users
 
 const Hero = () => {
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
   const [heroDestination, setHeroDestination] = useState("");
   const [heroCheckIn, setHeroCheckIn] = useState("");
   const [heroCheckOut, setHeroCheckOut] = useState("");
@@ -92,15 +91,20 @@ const Hero = () => {
       <div className="absolute inset-0 z-0 pointer-events-none">
         <video
           autoPlay
-          muted={isMuted}
+          muted
+          defaultMuted
           loop
           playsInline
-          preload="metadata"
+          preload="auto"
           aria-hidden="true"
+          crossOrigin="anonymous"
+          disablePictureInPicture
+          controls={false}
           className={`w-full h-full object-cover transition-opacity duration-1000 ${
             isVideoLoaded ? 'opacity-100' : 'opacity-0'
           }`}
-          onLoadedData={() => setIsVideoLoaded(true)}
+          onLoadedMetadata={() => setIsVideoLoaded(true)}
+          onPlay={() => setIsVideoLoaded(true)}
           onError={() => setIsVideoLoaded(false)}
           poster="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&h=1080&fit=crop"
           onEnded={(e) => { e.currentTarget.currentTime = 0; e.currentTarget.play().catch(() => {}); }}
