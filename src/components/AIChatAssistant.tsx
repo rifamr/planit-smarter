@@ -63,12 +63,12 @@ const AIChatAssistant = () => {
 
   return (
     <>
-      <button onClick={()=>setOpen((v)=>!v)} className="fixed bottom-6 right-4 lg:right-8 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-violet-500 to-cyan-500 text-white shadow-2xl hover:scale-105 transition">
+      <button onClick={()=>setOpen((v)=>!v)} className="fixed bottom-6 right-4 lg:right-8 z-[100] w-14 h-14 rounded-full bg-gradient-to-r from-violet-500 to-cyan-500 text-white shadow-2xl hover:scale-105 transition">
         <MessageSquare className="h-6 w-6 mx-auto" />
       </button>
       <AnimatePresence>
         {open && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} className="fixed bottom-24 right-4 lg:right-8 z-50 w-[min(22rem,calc(100vw-2rem))] sm:w-96 bg-background border border-border rounded-2xl shadow-xl overflow-hidden">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} className="fixed bottom-24 right-4 lg:right-8 z-[100] w-[min(22rem,calc(100vw-2rem))] sm:w-96 bg-background border border-border rounded-2xl shadow-xl overflow-hidden">
             <div className="p-3 border-b text-sm font-semibold">AI Travel Assistant</div>
             <div className="px-3 py-2 flex flex-wrap gap-2 border-b bg-muted/40">
               {samples.slice(0,4).map((s, i)=> (

@@ -26,12 +26,12 @@ const VoiceAndGestures = () => {
   return (
     <>
       <div ref={containerRef} className="md:hidden" />
-      <button onClick={() => setListening((v) => !v)} aria-label="Voice control" className="fixed bottom-24 right-4 lg:right-8 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-primary to-accent text-white shadow-2xl hover:scale-105 transition">
+      <button onClick={() => setListening((v) => !v)} aria-label="Voice control" className="fixed bottom-24 right-4 lg:right-8 z-[100] w-14 h-14 rounded-full bg-gradient-to-r from-primary to-accent text-white shadow-2xl hover:scale-105 transition">
         <Mic className="h-6 w-6 mx-auto" />
       </button>
       <AnimatePresence>
         {listening && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} className="fixed bottom-40 right-4 lg:right-8 z-50 bg-background border border-border rounded-xl p-4 shadow-lg w-64">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} className="fixed bottom-40 right-4 lg:right-8 z-[100] bg-background border border-border rounded-xl p-4 shadow-lg w-64">
             <p className="text-sm mb-2">Listening... (Mock Feature)</p>
             <div className="flex items-end gap-1 h-12">
               {waveform.map((i) => (

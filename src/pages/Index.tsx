@@ -26,7 +26,7 @@ const Fallback = () => <div className="max-w-6xl mx-auto container-padding py-12
 
 const Index = () => {
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-screen relative overflow-x-hidden">
       <Navigation />
       <StarrySky />
       <Hero />
