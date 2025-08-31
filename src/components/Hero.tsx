@@ -4,7 +4,6 @@ import { ArrowRight, Sparkles, Leaf, Search, MapPin, Calendar, DollarSign, Users
 
 const Hero = () => {
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
   const [heroDestination, setHeroDestination] = useState("");
   const [heroCheckIn, setHeroCheckIn] = useState("");
   const [heroCheckOut, setHeroCheckOut] = useState("");
@@ -92,32 +91,25 @@ const Hero = () => {
       <div className="absolute inset-0 z-0 pointer-events-none">
         <video
           autoPlay
-          muted={isMuted}
+          muted
           loop
           playsInline
-          preload="metadata"
+          preload="auto"
           aria-hidden="true"
+          crossOrigin="anonymous"
+          disablePictureInPicture
+          controls={false}
           className={`w-full h-full object-cover transition-opacity duration-1000 ${
             isVideoLoaded ? 'opacity-100' : 'opacity-0'
           }`}
-          onLoadedData={() => setIsVideoLoaded(true)}
+          onLoadedMetadata={() => setIsVideoLoaded(true)}
+          onPlay={() => setIsVideoLoaded(true)}
           onError={() => setIsVideoLoaded(false)}
           poster="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&h=1080&fit=crop"
+          onEnded={(e) => { e.currentTarget.currentTime = 0; e.currentTarget.play().catch(() => {}); }}
         >
           <source
             src="https://res.cloudinary.com/dbz1f3ahw/video/upload/v1756549821/173522-849651812_medium_iymzd3.mp4"
-            type="video/mp4"
-          />
-          <source
-            src="https://res.cloudinary.com/dbz1f3ahw/video/upload/v1756548149/37088-413229662_medium_dnjhjp.mp4"
-            type="video/mp4"
-          />
-          <source
-            src="https://player.vimeo.com/external/394498002.hd.mp4?s=5dcf97b3d92a40dcf7b1de17212d6c84726e6ca7&profile_id=175"
-            type="video/mp4"
-          />
-          <source
-            src="https://videos.pexels.com/video-files/33645089/14297758_640_360_24fps.mp4"
             type="video/mp4"
           />
         </video>

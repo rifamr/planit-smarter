@@ -15,6 +15,7 @@ const LanguageAssistance = () => {
   const [translatedSpeech, setTranslatedSpeech] = useState("");
   const [targetLang, setTargetLang] = useState("es");
   const recognitionRef = useRef<any>(null);
+  const simIntervalRef = useRef<any>(null);
   const [listening, setListening] = useState(false);
 
   // Chat Assistant state
@@ -204,7 +205,33 @@ const LanguageAssistance = () => {
   const startListening = () => {
     const SR: any = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SR) {
-      toast.error('Speech Recognition not supported on this device');
+      const samples = [
+        'Hello, I need help finding a hotel near the airport',
+        'Can you translate this phrase for me',
+        'I would like to book a table for two tonight'
+      ];
+      const chosen = samples[Math.floor(Math.random() * samples.length)];
+      const words = chosen.split(' ');
+      let i = 0;
+      setInputSpeech('');
+      setTranslatedSpeech('');
+      setListening(true);
+      simIntervalRef.current = setInterval(async () => {
+        setInputSpeech((prev) => prev + (prev ? ' ' : '') + words[i]);
+        i++;
+        if (i >= words.length) {
+          clearInterval(simIntervalRef.current);
+          simIntervalRef.current = null;
+          setListening(false);
+          try {
+            const out = await translateLibre(chosen, targetLang);
+            setTranslatedSpeech(out);
+            toast.success('Mock voice captured and translated');
+          } catch {
+            toast.success('Mock voice captured');
+          }
+        }
+      }, 180);
       return;
     }
     const recog = new SR();
@@ -231,6 +258,11 @@ const LanguageAssistance = () => {
   const stopListening = () => {
     if (recognitionRef.current) {
       try { recognitionRef.current.stop(); } catch {}
+      recognitionRef.current = null;
+    }
+    if (simIntervalRef.current) {
+      clearInterval(simIntervalRef.current);
+      simIntervalRef.current = null;
     }
     setListening(false);
   };
